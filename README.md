@@ -9,11 +9,16 @@ Bash script to spider a site, follow links, and fetch urls -- with some filterin
 ## How To Use
 
 1. Download the script and save to the desired location on your machine.
-2. Open Git Bash, Terminal, etc. and run the `fetchurls.sh` script:
+2. You'll need `wget` installed on your machine in order to continue. To check if it's already installed (if you're on Linux or a Mac, chances are you already have it) open Git Bash, Terminal, etc. and run the command: `$ wget`. If you receive an error message or command not found, you're probably on Windows. Here's the <b>Windows</b> installation instructions:
+    1. Download the lastest wget binary for windows from [https://eternallybored.org/misc/wget/](https://eternallybored.org/misc/wget/) (they are available as a zip with documentation, or just an exe. I'd recommend just the exe.)
+    2. If you downloaded the zip, extract all (if windows built in zip utility gives an error, use 7-zip). If you downloaded the 64-bit version,
+rename the `wget64.exe` file to `wget.exe`
+    3. Move `wget.exe` to `C:\Windows\System32\`
+3. Open Git Bash, Terminal, etc. and run the `fetchurls.sh` script:
     ```shell
     $ bash /path/to/script/fetchurls.sh
     ```
-3. You will be prompted to enter the full URL (including HTTPS/HTTP protocol) of the site you would like to crawl:
+4. You will be prompted to enter the full URL (including HTTPS/HTTP protocol) of the site you would like to crawl:
     ```shell
     #
     #    Fetch a list of unique URLs for a domain.
@@ -21,7 +26,7 @@ Bash script to spider a site, follow links, and fetch urls -- with some filterin
     #    Enter the full URL ( http://example.com )
     #    URL:
     ```
-4. When complete, the script will show a message and the location of your outputted file:
+5. When complete, the script will show a message and the location of your outputted file:
     ```shell
     #
     #    Fetch a list of unique URLs for a domain.
