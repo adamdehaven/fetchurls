@@ -25,6 +25,9 @@ fetchSiteUrls() {
   | grep -E -v '\?(p|replytocom)=' \
   | grep -E -v '\/wp-content\/uploads\/' \
   | grep -E -v '\/feed\/' \
+  | grep -E -v '\/category\/' \
+  | grep -E -v '\/tag\/' \
+  | grep -E -v '\/page\/' \
   | grep -E -v '\/wp-json\/' \
   | grep -E -v '\/xmlrpc' \
   | sort -u \
