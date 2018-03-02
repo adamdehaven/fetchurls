@@ -28,6 +28,7 @@ fetchSiteUrls() {
   | grep -E -v '\/category\/' \
   | grep -E -v '\/tag\/' \
   | grep -E -v '\/page\/' \
+  | grep -E -v '\/widgets.php$' \
   | grep -E -v '\/wp-json\/' \
   | grep -E -v '\/xmlrpc' \
   | sort -u \
