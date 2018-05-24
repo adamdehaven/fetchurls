@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Ensure you have wget installed and added to environment variable PATH
+# Example source: https://eternallybored.org/misc/wget/
+
 displaySpinner()
 {
   local pid=$!
@@ -40,18 +43,24 @@ echo "#    "
 echo "#    Fetch a list of unique URLs for a domain."
 echo "#    "
 echo "#    Enter the full URL ( http://example.com )"
+
 read -e -p "#    URL: " DOMAIN
 DOMAIN=$DOMAIN
 displaydomain=$(echo ${DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*")
 filename=$(echo ${DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*" | tr "." "-")
+
+echo "#    "
+read -e -p "#    Save txt file as: " -i "${filename}" SAVEFILENAME
+savefilename=$SAVEFILENAME
+
 echo "#    "
 echo "#    Fetching URLs for ${displaydomain} "
 
 # Start process
-fetchSiteUrls $filename & displaySpinner
+fetchSiteUrls $savefilename & displaySpinner
 
 # Process is complete, output message
 echo "#    Finished!"
 echo "#    "
-echo "#    File Location: ${savelocation}/$filename.txt"
+echo "#    File Location: ${savelocation}/$savefilename.txt"
 echo "#    "
