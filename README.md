@@ -26,6 +26,16 @@ rename the `wget64.exe` file to `wget.exe`
     #    Enter the full URL ( http://example.com )
     #    URL:
     ```
+5. You will then be prompted to change/accept the name of the outputted file (simply press enter to accept the default filename):
+    ```shell
+    #
+    #    Fetch a list of unique URLs for a domain.
+    #
+    #    Enter the full URL ( http://example.com )
+    #    URL: https://www.example.com
+    #
+    #    Save txt file as: example-com
+    ```
 5. When complete, the script will show a message and the location of your outputted file:
     ```shell
     #
@@ -34,10 +44,12 @@ rename the `wget64.exe` file to `wget.exe`
     #    Enter the full URL ( http://example.com )
     #    URL: https://www.example.com
     #
+    #    Save txt file as: example-com
+    #
     #    Fetching URLs for example.com
     #    Finished!
     #
-    #    File Location: ~/Desktop/example-com.txt
+    #    File Location: /c/Users/username/Desktop/example-com.txt
     #
     ```
 
@@ -45,7 +57,7 @@ The script will crawl the site and compile a list of valid URLs into a text file
 
 ## Extra Info
 
-* To change the default file output location, edit line #18. **Default**: `~/Desktop`
+* To change the default file output location, edit line #21. **Default**: `~/Desktop`
 
 * Ensure that you enter the correct protocol and subdomain for the URL or the outputted file may be empty or incomplete. For example, entering the incorrect, HTTP, protocol for [https://adamdehaven.com](https://adamdehaven.com) generates an empty file. Entering the proper protocol, HTTPS, allows the script to successfully run.
 
@@ -65,7 +77,11 @@ The script will crawl the site and compile a list of valid URLs into a text file
 * The script filters out several common WordPress files and directories such as:
     * /wp-content/uploads/
     * /feed/
+    * /category/
+    * /tag/
+    * /page/
+    * /widgets.php/
     * /wp-json/
     * xmlrpc
 
-* To change or edit the regular expressions that filter out some pages, directories, and file types, you may edit lines #24 through #29. **Caution**: If you're not familiar with grep, you can easily break the script.
+* To change or edit the regular expressions that filter out some pages, directories, and file types, you may edit lines #27 through #36. **Caution**: If you're not familiar with grep and regular expressions, you can easily break the script.
