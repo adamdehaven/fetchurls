@@ -2,7 +2,7 @@
 Bash script to spider a site, follow links, and fetch urls -- with some filtering. A list of URLs will be generated and saved to a text file.
 
 [![GitHub release](https://img.shields.io/github/release/adamdehaven/fetchurls.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/archive/master.zip)
-[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/fetchurls/v1.0.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/compare/v1.0...master)
+[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/fetchurls/v1.1.0.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/compare/v1.1.0...master)
 [![GitHub issues](https://img.shields.io/github/issues/adamdehaven/fetchurls.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/issues)
 [![license](https://img.shields.io/github/license/adamdehaven/fetchurls.svg?maxAge=3600)](https://raw.githubusercontent.com/adamdehaven/fetchurls/master/LICENSE)
 
