@@ -2,7 +2,7 @@
 Bash script to spider a site, follow links, and fetch urls -- with some filtering. A list of URLs will be generated and saved to a text file.
 
 [![GitHub release](https://img.shields.io/github/release/adamdehaven/fetchurls.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/archive/master.zip)
-[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/fetchurls/v1.1.0.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/compare/v1.1.0...master)
+[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/fetchurls/v1.1.1.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/compare/v1.1.1...master)
 [![GitHub issues](https://img.shields.io/github/issues/adamdehaven/fetchurls.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/issues)
 [![license](https://img.shields.io/github/license/adamdehaven/fetchurls.svg?maxAge=3600)](https://raw.githubusercontent.com/adamdehaven/fetchurls/master/LICENSE)
 
@@ -57,7 +57,7 @@ The script will crawl the site and compile a list of valid URLs into a text file
 
 ## Extra Info
 
-* To change the default file output location, edit line #21. **Default**: `~/Desktop`
+* To change the default file output location, edit line #7. **Default**: `~/Desktop`
 
 * Ensure that you enter the correct protocol and subdomain for the URL or the outputted file may be empty or incomplete. For example, entering the incorrect, HTTP, protocol for [https://adamdehaven.com](https://adamdehaven.com) generates an empty file. Entering the proper protocol, HTTPS, allows the script to successfully run.
 
@@ -84,4 +84,4 @@ The script will crawl the site and compile a list of valid URLs into a text file
     * /wp-json/
     * xmlrpc
 
-* To change or edit the regular expressions that filter out some pages, directories, and file types, you may edit lines #27 through #36. **Caution**: If you're not familiar with grep and regular expressions, you can easily break the script.
+* To change or edit the regular expressions that filter out some pages, directories, and file types, you may edit lines #35 through #44. **Caution**: If you're not familiar with grep and regular expressions, you can easily break the script.
