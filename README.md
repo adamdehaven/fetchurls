@@ -2,7 +2,7 @@
 Bash script to spider a site, follow links, and fetch urls -- with some filtering. A list of URLs will be generated and saved to a text file.
 
 [![GitHub release](https://img.shields.io/github/release/adamdehaven/fetchurls.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/archive/master.zip)
-[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/fetchurls/v1.1.1.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/compare/v1.1.1...master)
+[![GitHub commits](https://img.shields.io/github/commits-since/adamdehaven/fetchurls/v2.0.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/compare/v2.0...master)
 [![GitHub issues](https://img.shields.io/github/issues/adamdehaven/fetchurls.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/issues)
 [![license](https://img.shields.io/github/license/adamdehaven/fetchurls.svg?maxAge=3600)](https://raw.githubusercontent.com/adamdehaven/fetchurls/master/LICENSE)
 
@@ -25,30 +25,28 @@ Bash script to spider a site, follow links, and fetch urls -- with some filterin
     #    Enter the full URL ( http://example.com )
     #    URL:
     ```
-5. You will then be prompted to change/accept the name of the outputted file (simply press enter to accept the default filename):
+5. You will be prompted to enter the location (directory) of where you would like the generated results to be saved (defaults to Desktop on Windows):
     ```shell
     #
-    #    Fetch a list of unique URLs for a domain.
-    #
-    #    Enter the full URL ( http://example.com )
-    #    URL: https://www.example.com
-    #
-    #    Save txt file as: example-com
+    #    Save file to location
+    #    Directory: /c/Users/username/Desktop
     ```
-5. When complete, the script will show a message and the location of your outputted file:
+6. You will then be prompted to change/accept the name of the outputted file (simply press enter to accept the default filename):
     ```shell
     #
-    #    Fetch a list of unique URLs for a domain.
-    #
-    #    Enter the full URL ( http://example.com )
-    #    URL: https://www.example.com
-    #
-    #    Save txt file as: example-com
+    #    Save file as
+    #    Filename (no extension): example-com
+    ```
+7. When complete, the script will show a message and the location of your outputted file:
+    ```shell
     #
     #    Fetching URLs for example.com
-    #    Finished!
     #
-    #    File Location: /c/Users/username/Desktop/example-com.txt
+    #
+    #    Finished with 1 result!
+    #
+    #    File Location:
+    #    /c/Users/username/Desktop/example-com.txt
     #
     ```
 
@@ -58,7 +56,9 @@ The script will crawl the site and compile a list of valid URLs into a text file
 
 * To change the default file output location, edit line #7. **Default**: `~/Desktop`
 
-* Ensure that you enter the correct protocol and subdomain for the URL or the outputted file may be empty or incomplete. For example, entering the incorrect, HTTP, protocol for [https://adamdehaven.com](https://adamdehaven.com) generates an empty file. Entering the proper protocol, HTTPS, allows the script to successfully run.
+* Ensure that you enter the correct protocol and subdomain for the URL or the outputted file may be empty or incomplete, however the script will attempt to follow the first HTTP redirect, if found. For example, entering the incorrect HTTP, protocol for [https://adamdehaven.com](https://adamdehaven.com) will automatically fetch the URLs for the HTTPS version.
+
+* The script will successfully run as long as the target URL returns status `HTTP 200 OK`
 
 * The script, by default, filters out the following file extensions:
     * `.css`
