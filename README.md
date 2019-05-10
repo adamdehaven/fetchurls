@@ -54,7 +54,7 @@ The script will crawl the site and compile a list of valid URLs into a text file
 
 ## Extra Info
 
-* To change the default file output location, edit line #7. **Default**: `~/Desktop`
+* To change the default file output location, edit line #7 (or simply use the interactive prompt). **Default**: `~/Desktop`
 
 * Ensure that you enter the correct protocol and subdomain for the URL or the outputted file may be empty or incomplete, however the script will attempt to follow the first HTTP redirect, if found. For example, entering the incorrect HTTP, protocol for [https://adamdehaven.com](https://adamdehaven.com) will automatically fetch the URLs for the HTTPS version.
 
