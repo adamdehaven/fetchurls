@@ -83,4 +83,4 @@ The script will crawl the site and compile a list of valid URLs into a text file
     * `/wp-json/`
     * `xmlrpc`
 
-* To change or edit the regular expressions that filter out some pages, directories, and file types, you may edit lines #35 through #44. **Caution**: If you're not familiar with grep and regular expressions, you can easily break the script.
+* To change or edit the regular expressions that filter out some pages, directories, and file types, you may edit lines #54 through #63. **Caution**: If you're not familiar with grep and regular expressions, you can easily break the script.
