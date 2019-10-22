@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# This code has been referred from: https://github.com/adamdehaven/fetchurls/blob/master/fetchurls.sh
 # Ensure you have wget installed and added to environment variable PATH
 # Example source: https://eternallybored.org/misc/wget/
 
