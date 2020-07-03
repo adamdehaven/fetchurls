@@ -22,13 +22,12 @@ COLOR_RESET=$'\e[0m'
 POSITIONAL=()
 HELP_TEXT="Hi there. This script takes a url and some other bits detailed below and downloads the entire url tree of that domain by using a wget spider. 
 You can pass this script the following flags to do some stuff:
--v/--verbose    This will make the script verbose.
 -d/--domain    This sets the domain underneath which to fetch URLs.
 -p/--path   This lets you set the local path to save the file to. By default this is $DEFAULTSAVEFILEDIRECTORY
 -f/--file   This sets the name of the file to save to. 
 -h/--help   Displays this message
 
-usage: ./fetchurls.sh -v -u 'google.com' -p '~/urls' -f 'googlecomurls'
+usage: ./fetchurls.sh -d 'google.com' -p '/root/urls' -f 'googlecomurls'
 "
 
 
@@ -57,7 +56,7 @@ case $key in
     verbose="YES"
     shift # past argument
     ;;
-    -?|-h|--help)
+    -h|--help)
     echo $HELP_TEXT
     exit -1
     ;;
