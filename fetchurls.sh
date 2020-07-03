@@ -13,6 +13,60 @@ COLOR_YELLOW=$'\e[33m'
 COLOR_GREEN=$'\e[32m'
 COLOR_RESET=$'\e[0m'
 
+# -----------  PARSE ARGUMENTS  -----------
+
+#!/bin/bash
+POSITIONAL=()
+HELP_TEXT="Hi there. This script takes a companies house company number and downloads the entire filing history of that company from the Companies House api. 
+You can pass this script the following flags to do some stuff:
+-v/--verbose    This will make the script verbose.
+-u/--url    This sets the url underneat which to fetch URLs.
+-p/--path   This lets you set the local path to save the file to. By default this is $DEFAULTSAVEFILEDIRECTORY
+-f/--file   This sets the name of the file to save to. 
+-h/--help   Displays this message
+
+usage: ./fetchurls.sh -v -u 'google.com' -p '~/urls' -f 'googlecomurls'
+"
+
+
+while [ $# -gt 0 ]
+do
+key="$1"
+
+# Parse arguments
+case $key in
+    -u|--url)
+    url="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -p|--path)
+    path="$2"
+    shift # past argument
+    shift #past value
+    ;;
+    -f|--filename)
+    filename="$2"
+    shift # past argument
+    shift #past value
+    ;;
+    -v|--verbose)
+    verbose="YES"
+    shift # past argument
+    ;;
+    -?|-h|--help)
+    echo $HELP_TEXT
+    exit -1
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+COMPANY_NUMBER=$1; # set company number to the last arg entered.
+
 # Cleanup before exit
 beforeExit()
 {
