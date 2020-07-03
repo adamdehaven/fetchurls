@@ -5,7 +5,10 @@
 
 # -----------  SET DEFAULT SAVE LOCATION  -----------
 DEFAULTSAVEFILEDIRECTORY=~/Desktop
-
+# -----------  SET DEFAULT DOMAIN -----------
+DOMAIN=""
+# -----------  SET DEFAULT filename -----------
+SAVEFILENAME=""
 # -----------  SET COLORS  -----------
 COLOR_RED=$'\e[31m'
 COLOR_CYAN=$'\e[36m'
@@ -17,10 +20,10 @@ COLOR_RESET=$'\e[0m'
 
 #!/bin/bash
 POSITIONAL=()
-HELP_TEXT="Hi there. This script takes a companies house company number and downloads the entire filing history of that company from the Companies House api. 
+HELP_TEXT="Hi there. This script takes a url and some other bits detailed below and downloads the entire url tree of that domain by using a wget spider. 
 You can pass this script the following flags to do some stuff:
 -v/--verbose    This will make the script verbose.
--u/--url    This sets the url underneat which to fetch URLs.
+-d/--domain    This sets the domain underneath which to fetch URLs.
 -p/--path   This lets you set the local path to save the file to. By default this is $DEFAULTSAVEFILEDIRECTORY
 -f/--file   This sets the name of the file to save to. 
 -h/--help   Displays this message
@@ -35,8 +38,8 @@ key="$1"
 
 # Parse arguments
 case $key in
-    -u|--url)
-    url="$2"
+    -d|--domain)
+    DOMAIN="$2"
     shift # past argument
     shift # past value
     ;;
@@ -46,7 +49,7 @@ case $key in
     shift #past value
     ;;
     -f|--filename)
-    filename="$2"
+    SAVEFILENAME="$2"
     shift # past argument
     shift #past value
     ;;
@@ -119,12 +122,14 @@ fetchSiteUrls() {
   > $SAVEFILEDIRECTORY/$1.txt
 } # // fetchSiteUrls()
 
-# Prompt user for domain
-echo "#    "
-echo "#    Fetch a list of unique URLs for a domain."
-echo "#    "
-echo "#    Enter the full URL ( http://example.com )"
-read -e -p "#    URL: ${COLOR_CYAN}" DOMAIN
+if [ -z "$DOMAIN" ]; then
+  # Prompt user for domain
+  echo "#    "
+  echo "#    Fetch a list of unique URLs for a domain."
+  echo "#    "
+  echo "#    Enter the full URL ( http://example.com )"
+  read -e -p "#    URL: ${COLOR_CYAN}" DOMAIN
+fi
 DOMAIN="${DOMAIN%/}"
 displaydomain=$(echo ${DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*")
 filename=$(echo ${DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*" | tr "." "-")
@@ -151,17 +156,23 @@ elif [ "$URLSTATUS" != "200" ] || [ -z "$URLSTATUS" ]; then
     kill $$
 fi
 
-# Prompt user for save directory
-echo "${COLOR_RESET}#    "
-echo "#    Save file to location"
-read -e -p "#    Directory: ${COLOR_CYAN}" -i "${DEFAULTSAVEFILEDIRECTORY}" SAVEFILEDIRECTORY
+if [ -z "$path" ]; then
+  # Prompt user for save directory
+  echo "${COLOR_RESET}#    "
+  echo "#    Save file to location"
+  read -e -p "#    Directory: ${COLOR_CYAN}" -i "${DEFAULTSAVEFILEDIRECTORY}" SAVEFILEDIRECTORY
+else
+  SAVEFILEDIRECTORY=$path
+fi
 # Create directory if it does not exist
 mkdir -p $SAVEFILEDIRECTORY
 
-# Promt user for filename
-echo "${COLOR_RESET}#    "
-echo "#    Save file as"
-read -e -p "#    Filename (no extension): ${COLOR_CYAN}" -i "${filename}" SAVEFILENAME
+if [ -z "$SAVEFILENAME" ]; then
+  # Promt user for filename
+  echo "${COLOR_RESET}#    "
+  echo "#    Save file as"
+  read -e -p "#    Filename (no extension): ${COLOR_CYAN}" -i "${filename}" SAVEFILENAME
+fi
 savefilename=$SAVEFILENAME
 
 echo "${COLOR_RESET}#    "
