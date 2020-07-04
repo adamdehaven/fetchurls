@@ -49,7 +49,7 @@ case $key in
     shift #past value
     ;;
     -n|--non-interactive)
-    noninterative="YES"
+    noninteractive="YES"
     shift # past argument
     shift #past value
     ;;
