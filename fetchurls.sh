@@ -24,7 +24,8 @@ HELP_TEXT="Hi there. This script takes a url and some other bits detailed below 
 You can pass this script the following flags to do some stuff:
 -d/--domain    This sets the domain underneath which to fetch URLs.
 -p/--path   This lets you set the local path to save the file to. By default this is $DEFAULTSAVEFILEDIRECTORY
--f/--file   This sets the name of the file to save to. 
+-f/--file   This sets the name of the file to save to.
+-n/--non-interactive    This turns off the display spinner, meaning that the command will execute successfully in a non-interactive shell environment. 
 -h/--help   Displays this message
 
 usage: ./fetchurls.sh -d 'google.com' -p '/root/urls' -f 'googlecomurls'
@@ -44,6 +45,11 @@ case $key in
     ;;
     -p|--path)
     path="$2"
+    shift # past argument
+    shift #past value
+    ;;
+    -n|--non-interactive)
+    noninterative="YES"
     shift # past argument
     shift #past value
     ;;
@@ -179,8 +185,11 @@ echo "#    Fetching URLs for ${displaydomain}"
 echo "#    "
 
 # Start process
-fetchSiteUrls $savefilename & displaySpinner
-
+if [ -z "$noninteractive" ]; then
+    fetchSiteUrls $savefilename & displaySpinner
+else
+    fetchSiteUrls $savefilename
+fi
 # Process is complete
 
 # Count number of results if file exists
