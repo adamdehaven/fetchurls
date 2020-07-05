@@ -6,7 +6,7 @@ Bash script to spider a site, follow links, and fetch urls -- with some filterin
 [![GitHub issues](https://img.shields.io/github/issues/adamdehaven/fetchurls.svg?maxAge=3600)](https://github.com/adamdehaven/fetchurls/issues)
 [![license](https://img.shields.io/github/license/adamdehaven/fetchurls.svg?maxAge=3600)](https://raw.githubusercontent.com/adamdehaven/fetchurls/master/LICENSE)
 
-## How To Use
+## Usage
 
 1. Download the script and save to the desired location on your machine.
 2. You'll need `wget` installed on your machine in order to continue. To check if it's already installed (if you're on Linux or a Mac, chances are you already have it) open Git Bash, Terminal, etc. and run the command: `$ wget`. If you receive an error message or command not found, you're probably on Windows. Here's the <b>Windows</b> installation instructions:
