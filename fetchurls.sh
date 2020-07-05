@@ -39,12 +39,12 @@ displaySpinner()
   local spinstr='|/-\'
   while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
       local temp=${spinstr#?}
-      printf "${COLOR_RESET}#    ${COLOR_GREEN}Please wait... [%c]  " "$spinstr${COLOR_RESET}" # Count number of backspaces needed (A = 25)
+      printf "${COLOR_RESET}#    ${COLOR_GREEN}Please wait... [ %c ]  " "$spinstr${COLOR_RESET}" # Count number of backspaces needed (A = 25)
       local spinstr=$temp${spinstr%"$temp"}
       sleep $delay
-      printf "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" # Number of backspaces from (A)
+      printf "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" # Number of backspaces from (A)
   done
-  printf "                         \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" # Number of spaces, then backspaces from (A)
+  printf "                         \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" # Number of spaces, then backspaces from (A)
 } # // displaySpinner()
 
 fetchSiteUrls() {
