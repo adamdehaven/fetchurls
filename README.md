@@ -31,9 +31,7 @@ A bash script to spider a site, follow links, and fetch urls (with built-in filt
     ./fetchurls.sh [OPTIONS]...
     ```
 
-    ::: info Note
     If you do not pass any options, the script will run interactively.
-    :::
 
 Alternatively, you may execute with either of the following:
 
