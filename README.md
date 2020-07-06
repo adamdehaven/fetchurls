@@ -82,7 +82,7 @@ The desired name of the generated file, without spaces or file extension.
 
 Allows the script to run successfully in a non-interactive shell.
 
-The script will utilize the default [`--location`](#l-location) and [`--filename`](#f-filename) configurations unless the respective flags are explicitely set. This flag also disables the progress indicator.
+The script will utilize the default [`--location`](#l-location) and [`--filename`](#f-filename) settings unless the respective flags are explicitely set.
 
 ### wget
 
@@ -110,7 +110,7 @@ Show the help content.
 
 ## Interactive Mode
 
-If any of the required flags are not passed, a portion of the script will run interactively and you will be prompted for the unset options.
+If you do not pass the --domain flag, the script will run in interactive mode and you will be prompted for the unset options.
 
 First, you will be prompted to enter the full URL (including HTTPS/HTTP protocol) of the site you would like to crawl:
 

@@ -141,15 +141,16 @@ showHelp()
     echo "     ${COLOR_CYAN}chmod +x ./fetchurls.sh${COLOR_RESET}"
     echo "  2. Enter the following to run the script:"
     echo "      ${COLOR_CYAN}./fetchurls.sh [OPTIONS]...${COLOR_RESET}"
-    echo "      If you do not pass any options, the script will run interactively."
     echo ""
     echo "  Alternatively, you may execute with either of the following:"
     echo "  a) ${COLOR_CYAN}sh ./fetchurls.sh [OPTIONS]...${COLOR_RESET}"
     echo "  b) ${COLOR_CYAN}bash ./fetchurls.sh [OPTIONS]...${COLOR_RESET}"
     echo ""
+    echo ""
     echo "Options:"
     echo "  -d, --domain                  The fully qualified domain URL (with protocol) you would like to crawl."
     echo "                                Example: ${COLOR_CYAN}https://example.com${COLOR_RESET}"
+    echo "                                ${COLOR_YELLOW}If you do not pass the --domain flag, the script will run in interactive mode.${COLOR_RESET}"
     echo ""
     echo "  -l, --location                The location (directory) where you would like to save the generated results."
     echo "                                Default: ${COLOR_YELLOW}~/Desktop${COLOR_RESET}"
@@ -160,10 +161,11 @@ showHelp()
     echo "                                Example: ${COLOR_CYAN}example-com${COLOR_RESET}"
     echo ""
     echo "  -n, --non-interactive         Allows the script to run successfully in a non-interactive shell."
-    echo "                                Uses the default --location and --filename settings (unless specified), and"
-    echo "                                turns off the progress indicator."
+    echo "                                Uses the default --location and --filename settings unless the "
+    echo "                                respective flags are explicitely set."
     echo ""
     echo "  -w, --wget                    Show wget install instructions."
+    echo "                                The installation instructions may vary depending on your computer's configuration."
     echo ""
     echo "  -v, -V, --version             Show version info."
     echo ""
@@ -260,9 +262,8 @@ beforeExit()
     # Delete generated file if it exists and is empty
     if [ -f $USER_SAVE_LOCATION/$USER_FILENAME.txt ] && [ ! -s $USER_SAVE_LOCATION/$USER_FILENAME.txt ]; then
         printf "                         \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" # Number of backspaces from (A) to remove spinner
-        echo "${COLOR_RESET}"
         if [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
-            echo ""
+            echo "${COLOR_RESET}"
         fi
         echo "${COLOR_RED}User cancelled. Cleaning up...${COLOR_RESET}"
         rm $USER_SAVE_LOCATION/$USER_FILENAME.txt
@@ -331,7 +332,7 @@ elif [ "$URL_STATUS" != "200" ] || [ -z "$URL_STATUS" ]; then
 fi
 
 # USER_SAVE_LOCATION
-if [ -z "$USER_SAVE_LOCATION" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
+if [ -z "$USER_SAVE_LOCATION" ] && [ -z "$DEFAULT_SAVE_LOCATION" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
     # Prompt user for save directory
     echo "${COLOR_RESET}"
     echo "Save file to directory"
@@ -344,7 +345,7 @@ fi
 mkdir -p $USER_SAVE_LOCATION
 
 # USER_FILENAME
-if [ -z "$USER_FILENAME" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
+if [ -z "$USER_FILENAME" ] && [ -z "$GENERATED_FILENAME" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
     # Promt user for filename
     echo "${COLOR_RESET}"
     echo "Save file as"
@@ -355,18 +356,13 @@ else
     USER_FILENAME=$GENERATED_FILENAME
 fi
 
-echo "${COLOR_RESET}"
-echo "Fetching URLs for ${DISPLAY_DOMAIN}"
+echo ""
+echo "${COLOR_RESET}Fetching URLs for ${DISPLAY_DOMAIN}"
 
 # Start process
-if [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
-    # Start process, no spinner
-    fetchSiteUrls $USER_FILENAME
-else
-    echo ""
-    # Start process, with spinner
-    fetchSiteUrls $USER_FILENAME & displaySpinner
-fi
+echo ""
+# Start process, with spinner
+fetchSiteUrls $USER_FILENAME & displaySpinner
 
 # Process is complete
 
