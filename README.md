@@ -20,13 +20,13 @@ A bash script to spider a site, follow links, and fetch urls (with built-in filt
 3. Open Git Bash, Terminal, etc. and set execute permissions for the `fetchurls.sh` script:
 
     ```shell
-    chmod +x /path/to/script/fetchurls.sh
+    chmod +x ./fetchurls.sh
     ```
 
 4. Enter the following to run the script:
 
     ```shell
-    ./path/to/script/fetchurls.sh [OPTIONS]...
+    ./fetchurls.sh [OPTIONS]...
     ```
 
     If you do not pass any options, the script will run interactively.
@@ -34,11 +34,11 @@ A bash script to spider a site, follow links, and fetch urls (with built-in filt
 Alternatively, you may execute with either of the following:
 
 ```shell
-sh ./path/to/script/fetchurls.sh [OPTIONS]...
+sh ./fetchurls.sh [OPTIONS]...
 
 # -- OR -- #
 
-bash ./path/to/script/fetchurls.sh [OPTIONS]...
+bash ./fetchurls.sh [OPTIONS]...
 ```
 
 ## Interactive
