@@ -153,7 +153,7 @@ showHelp()
     echo ""
     echo "  -l, --location                The location (directory) where you would like to save the generated results."
     echo "                                Default: ${COLOR_YELLOW}~/Desktop${COLOR_RESET}"
-    echo "                                Example: ${COLOR_CYAN}/c/Users/username/Desktop/example-com.txt${COLOR_RESET}"
+    echo "                                Example: ${COLOR_CYAN}/c/Users/username/Desktop${COLOR_RESET}"
     echo ""
     echo "  -f, --filename                The name of the generated file, without spaces or file extension."
     echo "                                Default: ${COLOR_YELLOW}domain-topleveldomain${COLOR_RESET}"
