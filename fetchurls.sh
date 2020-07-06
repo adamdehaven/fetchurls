@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VERSION="v3.0.0"
+
 # Set Defaults
 WGET_INSTALLED=0
 RUN_NONINTERACTIVE=0
@@ -7,10 +9,10 @@ DEFAULT_SAVE_LOCATION=~/Desktop
 SHOW_HELP=0
 SHOW_WGET_INSTALL_INFO=0
 SHOW_VERSION=0
+SHOW_TROUBLESHOOTING=0
 USER_DOMAIN=
 USER_FILENAME=
 USER_SAVE_LOCATION=
-SHOW_TROUBLESHOOTING=0
 
 # Set colors
 COLOR_RED=$'\e[31m'
@@ -19,91 +21,94 @@ COLOR_YELLOW=$'\e[33m'
 COLOR_GREEN=$'\e[32m'
 COLOR_RESET=$'\e[0m'
 
+PARAMS=""
+
 # Loop through arguments and process them
-# for arg in "$@"
-while :; do
-    case $1 in
+while (( "$#" )); do
+
+    # Debug: Show flag being evaulated
+    # echo "  ${COLOR_CYAN}$1${COLOR_RESET}"
+
+    case "$1" in
         -h|-\?|--help)
             SHOW_HELP=1
-            shift # Remove --help from processing
             ;;
         -w|--wget)
             SHOW_WGET_INSTALL_INFO=1
-            shift # Remove --wget from processing
             ;;
         -v|-V|--version)
             SHOW_VERSION=1
-            shift # Remove --version from processing
             ;;
         -n|--non-interactive)
             RUN_NONINTERACTIVE=1
-            shift # Remove --non-interactive from processing
             ;;
         -t|--troubleshoot)
             SHOW_TROUBLESHOOTING=1
-            shift # Remove --non-interactive from processing
             ;;
         # DOMAIN
         -d|--domain)
             if [ "$2" ]; then
                 USER_DOMAIN="$2"
-                shift # Remove argument name from processing
+               shift # Remove argument name from processing
             else
-                echo "${COLOR_RED}ERROR: \"--domain\" requires a non-empty option argument."${COLOR_RESET}
+                echo "${COLOR_RED}ERROR: Value for $1 is required."${COLOR_RESET} >&2
                 exit 1
             fi
             ;;
         -d=*?|--domain=*?)
             USER_DOMAIN="${1#*=}"
-            shift # Remove domain from processing
+           shift # Remove domain from processing
             ;;
         # FILENAME
         -f|--filename)
             if [ "$2" ]; then
                 USER_FILENAME="$2"
-                shift # Remove argument name from processing
+               shift # Remove argument name from processing
             else
-                echo "${COLOR_RED}ERROR: \"--filename\" requires a non-empty option argument."${COLOR_RESET}
+                echo "${COLOR_RED}ERROR: Value for $1 is required. Remove $1 flag to use the default value."${COLOR_RESET} >&2
                 exit 1
             fi
             ;;
         -f=*|--filename=*)
             USER_FILENAME="${1#*=}"
-            shift # Remove filename from processing
+           shift # Remove filename from processing
             ;;
         # LOCATION
         -l|--location)
             if [ "$2" ]; then
                 USER_SAVE_LOCATION="$2"
-                shift # Remove argument name from processing
+               shift # Remove argument name from processing
             else
-                echo "${COLOR_RED}ERROR: \"--location\" requires a non-empty option argument."${COLOR_RESET}
+                echo "${COLOR_RED}ERROR: Value for $1 is required. Remove $1 flag to use the default value."${COLOR_RESET} >&2
                 exit 1
             fi
             ;;
         -l=*|--location=*)
             USER_SAVE_LOCATION="${1#*=}"
-            shift # Remove location from processing
+           shift # Remove location from processing
             ;;
         # End of all options
-        --)
-            shift
-            break
+        -*|--*=) # unsupported flags
+            echo "${COLOR_RED}ERROR: Flag $1 is not a supported option."${COLOR_RESET} >&2
+            exit 1
             ;;
-        -?*)
-            ;;
-        # Default case: No more options, so break out of the loop.
+        # preserve positional arguments
         *)
-            break
+            PARAMS="${PARAMS} $1"
+            shift
+            ;;
     esac
     shift
 done
+
+# Set positional arguments in their proper place
+eval set -- "$PARAMS"
 
 # Version
 showVersion()
 {
     echo ""
-    echo "fetchurls v3.0.0"
+    echo "${COLOR_YELLOW}fetchurls $VERSION${COLOR_RESET}"
     footerInfo
 }
 
@@ -132,19 +137,27 @@ showHelp()
         echo ""
     fi
     echo "Usage:"
-    echo "  fetchurls.sh [OPTIONS]..."
+    echo "  1. Set execute permissions for the script:"
+    echo "     ${COLOR_CYAN}chmod +x ./fetchurls.sh${COLOR_RESET}"
+    echo "  2. Enter the following to run the script:"
+    echo "      ${COLOR_CYAN}./fetchurls.sh [OPTIONS]...${COLOR_RESET}"
+    echo "      If you do not pass any options, the script will run interactively."
+    echo ""
+    echo "  Alternatively, you may execute with either of the following:"
+    echo "  a) ${COLOR_CYAN}sh ./fetchurls.sh [OPTIONS]...${COLOR_RESET}"
+    echo "  b) ${COLOR_CYAN}bash ./fetchurls.sh [OPTIONS]...${COLOR_RESET}"
     echo ""
     echo "Options:"
     echo "  -d, --domain                  The fully qualified domain URL (with protocol) you would like to crawl."
-    echo "                                Example: https://example.com"
+    echo "                                Example: ${COLOR_CYAN}https://example.com${COLOR_RESET}"
     echo ""
     echo "  -l, --location                The location (directory) where you would like to save the generated results."
-    echo "                                Default: ~/Desktop"
-    echo "                                Example: /c/Users/username/Desktop/example-com.txt"
+    echo "                                Default: ${COLOR_YELLOW}~/Desktop${COLOR_RESET}"
+    echo "                                Example: ${COLOR_CYAN}/c/Users/username/Desktop/example-com.txt${COLOR_RESET}"
     echo ""
     echo "  -f, --filename                The name of the generated file, without spaces or file extension."
-    echo "                                Default: DOMAIN-TOP_LEVEL_DOMAIN"
-    echo "                                Example: example-com"
+    echo "                                Default: ${COLOR_YELLOW}domain-topleveldomain${COLOR_RESET}"
+    echo "                                Example: ${COLOR_CYAN}example-com${COLOR_RESET}"
     echo ""
     echo "  -n, --non-interactive         Allows the script to run successfully in a non-interactive shell."
     echo "                                Uses the default --location and --filename settings (unless specified), and"
@@ -163,10 +176,13 @@ showHelp()
 showWgetInstallInfo()
 {
     echo ""
-    echo "You will need wget installed (or properly added to your path) to continue. To check if wget is"
-    echo "already installed, try running the command 'wget' by itself."
+    if [ "$WGET_INSTALLED" -eq 0 ]; then
+        echo "${COLOR_RED}You will need wget installed (or properly added to your PATH) to continue.${COLOR_RESET}"
+        echo ""
+    fi
+    echo "To check if wget is already installed, try running the command 'wget' by itself."
     echo ""
-    echo "If you are on a Mac or running Linux, changes are you already have wget installed;"
+    echo "If you are on a Mac or running Linux, chances are you already have wget installed;"
     echo "however, if the wget command is not working, it may not be properly added to your PATH variable."
     echo ""
     echo "If you are running Windows:"
@@ -182,13 +198,16 @@ showWgetInstallInfo()
 
 showTroubleshooting()
 {
-    echo "# SHOW_HELP: $SHOW_HELP"
-    echo "# SHOW_WGET_INSTALL_INFO: $SHOW_WGET_INSTALL_INFO"
-    echo "# SHOW_VERSION: $SHOW_VERSION"
-    echo "# RUN_NONINTERACTIVE: $RUN_NONINTERACTIVE"
-    echo "# USER_DOMAIN: $USER_DOMAIN"
-    echo "# USER_FILENAME: $USER_FILENAME"
-    echo "# USER_SAVE_LOCATION: $USER_SAVE_LOCATION"
+    echo ""
+    echo "${COLOR_YELLOW}Runtime variables:${COLOR_RESET}"
+    echo "  WGET_INSTALLED:             ${COLOR_CYAN}$WGET_INSTALLED${COLOR_RESET}"
+    echo "  SHOW_WGET_INSTALL_INFO:     ${COLOR_CYAN}$SHOW_WGET_INSTALL_INFO${COLOR_RESET}"
+    echo "  SHOW_HELP:                  ${COLOR_CYAN}$SHOW_HELP${COLOR_RESET}"
+    echo "  SHOW_VERSION:               ${COLOR_CYAN}$SHOW_VERSION${COLOR_RESET}"
+    echo "  RUN_NONINTERACTIVE:         ${COLOR_CYAN}$RUN_NONINTERACTIVE${COLOR_RESET}"
+    echo "  USER_DOMAIN:                ${COLOR_CYAN}$USER_DOMAIN${COLOR_RESET}"
+    echo "  USER_FILENAME:              ${COLOR_CYAN}$USER_FILENAME${COLOR_RESET}"
+    echo "  USER_SAVE_LOCATION:         ${COLOR_CYAN}$USER_SAVE_LOCATION${COLOR_RESET}"
 }
 
 checkForWget()
@@ -253,12 +272,17 @@ beforeExit()
     echo ""
     echo "${COLOR_YELLOW}Cancelled${COLOR_RESET}"
     # Exit process
-    exit 1
+    exit 130
 }
 trap beforeExit INT
 
 # First, check if wget is installed
 checkForWget
+
+# If user passed troubleshoot flag, output variables before continuing
+if [ "$SHOW_TROUBLESHOOTING" -eq 1 ]; then
+    showTroubleshooting
+fi
 
 # If user passed help flag
 if [ "$SHOW_HELP" -eq 1 ]; then
@@ -267,10 +291,6 @@ if [ "$SHOW_HELP" -eq 1 ]; then
 # If user passed version flag
 elif [ "$SHOW_VERSION" -eq 1 ]; then
     showVersion
-    exit
-# If user passed troubleshoot flag
-elif [ "$SHOW_TROUBLESHOOTING" -eq 1 ]; then
-    showTroubleshooting
     exit
 elif [ "$SHOW_WGET_INSTALL_INFO" -eq 1 ] || [ "$WGET_INSTALLED" -eq 0 ]; then
     showWgetInstallInfo
@@ -284,7 +304,7 @@ if [ -z "$USER_DOMAIN" ]; then
     echo "Fetch a list of unique URLs for a domain."
     echo ""
     echo "Enter the full domain URL ( https://example.com )"
-    read -e -p "Domain: ${COLOR_CYAN}" USER_DOMAIN
+    read -e -p "Domain URL: ${COLOR_CYAN}" USER_DOMAIN
 fi
 
 USER_DOMAIN="${USER_DOMAIN%/}"
