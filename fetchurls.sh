@@ -376,9 +376,9 @@ if [ -f $USER_SAVE_LOCATION/$USER_FILENAME.txt ]; then
     fi
 
     # Output message
-    echo "${COLOR_RESET}${COLOR_GREEN}Finished with ${RESULT_MESSAGE}!${COLOR_RESET}"
+    echo "${COLOR_GREEN}Finished with ${RESULT_MESSAGE}!${COLOR_RESET}"
     echo ""
-    echo "${COLOR_RESET}File Location:${COLOR_RESET}"
-    echo "${COLOR_GREEN}${USER_SAVE_LOCATION}/$USER_FILENAME.txt${COLOR_RESET}"
+    echo "File Location:"
+    echo "   ${COLOR_GREEN}${USER_SAVE_LOCATION}/$USER_FILENAME.txt${COLOR_RESET}"
     echo ""
 fi
