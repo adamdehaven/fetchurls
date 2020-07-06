@@ -1,7 +1,5 @@
 #!/bin/bash
 
-VERSION="v3.0.0"
-
 # Set Defaults
 WGET_INSTALLED=0
 RUN_NONINTERACTIVE=0
@@ -20,6 +18,8 @@ COLOR_CYAN=$'\e[36m'
 COLOR_YELLOW=$'\e[33m'
 COLOR_GREEN=$'\e[32m'
 COLOR_RESET=$'\e[0m'
+
+VERSION="v3.0.0"
 
 PARAMS=""
 
