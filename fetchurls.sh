@@ -3,14 +3,16 @@
 # Set Defaults
 WGET_INSTALLED=0
 RUN_NONINTERACTIVE=0
-DEFAULT_SAVE_LOCATION=~/Desktop
 SHOW_HELP=0
 SHOW_WGET_INSTALL_INFO=0
 SHOW_VERSION=0
 SHOW_TROUBLESHOOTING=0
 USER_DOMAIN=
 USER_FILENAME=
+DEFAULT_SAVE_LOCATION=~/Desktop
 USER_SAVE_LOCATION=
+DEFAULT_EXCLUDED_EXTENTIONS="bmp|css|doc|docx|gif|jpeg|jpg|JPG|js|map|pdf|PDF|png|ppt|pptx|svg|ts|txt|xls|xlsx|xml"
+USER_EXCLUDED_EXTENTIONS=
 
 # Set colors
 COLOR_RED=$'\e[31m'
@@ -49,7 +51,7 @@ while (( "$#" )); do
         -d|--domain)
             if [ "$2" ]; then
                 USER_DOMAIN="$2"
-               shift # Remove argument name from processing
+                shift # Remove argument name from processing
             else
                 echo "${COLOR_RED}ERROR: Value for $1 is required."${COLOR_RESET} >&2
                 exit 1
@@ -57,13 +59,13 @@ while (( "$#" )); do
             ;;
         -d=*?|--domain=*?)
             USER_DOMAIN="${1#*=}"
-           shift # Remove domain from processing
+            shift # Remove domain from processing
             ;;
         # FILENAME
         -f|--filename)
             if [ "$2" ]; then
                 USER_FILENAME="$2"
-               shift # Remove argument name from processing
+                shift # Remove argument name from processing
             else
                 echo "${COLOR_RED}ERROR: Value for $1 is required. Remove $1 flag to use the default value."${COLOR_RESET} >&2
                 exit 1
@@ -71,13 +73,13 @@ while (( "$#" )); do
             ;;
         -f=*|--filename=*)
             USER_FILENAME="${1#*=}"
-           shift # Remove filename from processing
+            shift # Remove filename from processing
             ;;
         # LOCATION
         -l|--location)
             if [ "$2" ]; then
                 USER_SAVE_LOCATION="$2"
-               shift # Remove argument name from processing
+                shift # Remove argument name from processing
             else
                 echo "${COLOR_RED}ERROR: Value for $1 is required. Remove $1 flag to use the default value."${COLOR_RESET} >&2
                 exit 1
@@ -85,7 +87,22 @@ while (( "$#" )); do
             ;;
         -l=*|--location=*)
             USER_SAVE_LOCATION="${1#*=}"
-           shift # Remove location from processing
+            shift # Remove location from processing
+            ;;
+        # EXCLUDE FILE EXTENSIONS
+        -e|--exclude)
+            if [ "$2" ] || [ "$2" == "" ]; then
+                # Remove first and last character, if either is a pipe
+                USER_EXCLUDED_EXTENTIONS="$(echo "$2" | sed 's/^|//' | sed 's/|$//')"
+                shift # Remove argument name from processing
+            else
+                echo "${COLOR_RED}ERROR: Value for $1 is required. Remove $1 flag to use the default value."${COLOR_RESET} >&2
+                exit 1
+            fi
+            ;;
+        -e=*|--exclude=*)
+            USER_EXCLUDED_EXTENTIONS="${1#*=}"
+            shift # Remove location from processing
             ;;
         # End of all options
         -*|--*=) # unsupported flags
@@ -149,8 +166,8 @@ showHelp()
     echo ""
     echo "Options:"
     echo "  -d, --domain                  The fully qualified domain URL (with protocol) you would like to crawl."
-    echo "                                Example: ${COLOR_CYAN}https://example.com${COLOR_RESET}"
     echo "                                ${COLOR_YELLOW}If you do not pass the --domain flag, the script will run in interactive mode.${COLOR_RESET}"
+    echo "                                Example: ${COLOR_CYAN}https://example.com${COLOR_RESET}"
     echo ""
     echo "  -l, --location                The location (directory) where you would like to save the generated results."
     echo "                                Default: ${COLOR_YELLOW}~/Desktop${COLOR_RESET}"
@@ -160,9 +177,14 @@ showHelp()
     echo "                                Default: ${COLOR_YELLOW}domain-topleveldomain${COLOR_RESET}"
     echo "                                Example: ${COLOR_CYAN}example-com${COLOR_RESET}"
     echo ""
+    echo "  -e, --exclude                 Pipe-delimited list of file extensions to exclude from results."
+    echo "                                ${COLOR_YELLOW}The list of file extensions must be passed inside quotes.${COLOR_RESET}"
+    echo "                                To prevent excluding files matching the default list, simply pass an empty string: \"\""
+    echo "                                Default: ${COLOR_YELLOW}\"$DEFAULT_EXCLUDED_EXTENTIONS\"${COLOR_RESET}"
+    echo "                                Example: ${COLOR_CYAN}\"css|js|map\"${COLOR_RESET}"
+    echo ""
     echo "  -n, --non-interactive         Allows the script to run successfully in a non-interactive shell."
-    echo "                                Uses the default --location and --filename settings unless the "
-    echo "                                respective flags are explicitely set."
+    echo "                                Uses the default --location and --filename settings unless the corresponding flags are set."
     echo ""
     echo "  -w, --wget                    Show wget install instructions."
     echo "                                The installation instructions may vary depending on your computer's configuration."
@@ -210,6 +232,7 @@ showTroubleshooting()
     echo "  USER_DOMAIN:                ${COLOR_CYAN}$USER_DOMAIN${COLOR_RESET}"
     echo "  USER_FILENAME:              ${COLOR_CYAN}$USER_FILENAME${COLOR_RESET}"
     echo "  USER_SAVE_LOCATION:         ${COLOR_CYAN}$USER_SAVE_LOCATION${COLOR_RESET}"
+    echo "  USER_EXCLUDED_EXTENTIONS:   ${COLOR_CYAN}$USER_EXCLUDED_EXTENTIONS${COLOR_RESET}"
 }
 
 checkForWget()
@@ -238,11 +261,11 @@ displaySpinner()
   printf "                         \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" # Number of spaces, then backspaces from (A)
 }
 
-fetchSiteUrls() {
+fetchUrlsForDomain() {
   cd $USER_SAVE_LOCATION && wget --spider -r -nd --max-redirect=30 $USER_DOMAIN 2>&1 \
   | grep '^--' \
   | awk '{ print $3 }' \
-  | grep -E -v '\.(bmp|css|doc|docx|gif|jpeg|jpg|JPG|js|map|pdf|PDF|png|ppt|pptx|svg|ts|txt|xls|xlsx|xml)(\?.*)?$' \
+  | grep -E -v '\.('${USER_EXCLUDED_EXTENTIONS}')(\?.*)?$' \
   | grep -E -v '\?(p|replytocom)=' \
   | grep -E -v '\/wp-content\/uploads\/' \
   | grep -E -v '\/feed\/' \
@@ -265,6 +288,7 @@ beforeExit()
         if [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
             echo "${COLOR_RESET}"
         fi
+        echo ""
         echo "${COLOR_RED}User cancelled. Cleaning up...${COLOR_RESET}"
         rm $USER_SAVE_LOCATION/$USER_FILENAME.txt
     else
@@ -281,7 +305,7 @@ trap beforeExit INT
 checkForWget
 
 # If user passed troubleshoot flag, output variables before continuing
-if [ "$SHOW_TROUBLESHOOTING" -eq 1 ]; then
+if [ "$SHOW_TROUBLESHOOTING" -eq 1 ] && { [ "$SHOW_HELP" -eq 1 ] || [ "$SHOW_VERSION" -eq 1 ]; } then
     showTroubleshooting
 fi
 
@@ -299,18 +323,22 @@ elif [ "$SHOW_WGET_INSTALL_INFO" -eq 1 ] || [ "$WGET_INSTALLED" -eq 0 ]; then
 fi
 
 # USER_DOMAIN
-if [ -z "$USER_DOMAIN" ]; then
+if [ -z "$USER_DOMAIN" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
     # Prompt user for domain
     echo "${COLOR_RESET}"
     echo "Fetch a list of unique URLs for a domain."
     echo ""
     echo "Enter the full domain URL ( https://example.com )"
     read -e -p "Domain URL: ${COLOR_CYAN}" USER_DOMAIN
+elif [ -z "$USER_DOMAIN" ] && [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
+    echo "${COLOR_RED}ERROR: --domain is required.${COLOR_RESET}"
+    echo "${COLOR_RED}Try again by passing a valid domain URL or removing the --non-interactive flag."${COLOR_RESET} >&2
+    exit 1
 fi
 
 USER_DOMAIN="${USER_DOMAIN%/}"
-DISPLAY_DOMAIN=$(echo ${USER_DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*")
-GENERATED_FILENAME=$(echo ${USER_DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*" | tr "." "-")
+DISPLAY_DOMAIN="$(echo ${USER_DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*")"
+GENERATED_FILENAME="$(echo ${USER_DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*" | tr "." "-")"
 
 # Check if URL is valid and returns 200 status
 URL_STATUS=$(wget --spider -q --server-response $USER_DOMAIN 2>&1 | grep --max-count=1 "HTTP/" | awk '{print $2}')
@@ -332,28 +360,46 @@ elif [ "$URL_STATUS" != "200" ] || [ -z "$URL_STATUS" ]; then
 fi
 
 # USER_SAVE_LOCATION
-if [ -z "$USER_SAVE_LOCATION" ] && [ -z "$DEFAULT_SAVE_LOCATION" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
+if [ -z "$USER_SAVE_LOCATION" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
     # Prompt user for save directory
     echo "${COLOR_RESET}"
     echo "Save file to directory"
     read -e -p "Location: ${COLOR_CYAN}" -i "${DEFAULT_SAVE_LOCATION}" USER_SAVE_LOCATION
 else
     # Running non-interactive, so set to default
-    USER_SAVE_LOCATION=$DEFAULT_SAVE_LOCATION
+    USER_SAVE_LOCATION="$DEFAULT_SAVE_LOCATION"
 fi
 # Create directory if it does not exist
 mkdir -p $USER_SAVE_LOCATION
 
 # USER_FILENAME
-if [ -z "$USER_FILENAME" ] && [ -z "$GENERATED_FILENAME" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
-    # Promt user for filename
+if [ -z "$USER_FILENAME" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
+    # Prompt user for filename
     echo "${COLOR_RESET}"
     echo "Save file as"
     read -e -p "Filename (no file extension, and no spaces): ${COLOR_CYAN}" -i "${GENERATED_FILENAME}" USER_FILENAME
-    USER_FILENAME=$USER_FILENAME
+    USER_FILENAME="$USER_FILENAME"
 else
     # Running non-interactive, so set to default
-    USER_FILENAME=$GENERATED_FILENAME
+    USER_FILENAME="$GENERATED_FILENAME"
+fi
+
+# USER_EXCLUDED_EXTENTIONS
+if [ -z "$USER_EXCLUDED_EXTENTIONS" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
+    # Prompt user for excluded file extensions
+    echo "${COLOR_RESET}"
+    echo "Exclude files with matching extensions"
+    read -e -p "Excluded extensions: ${COLOR_CYAN}" -i "${DEFAULT_EXCLUDED_EXTENTIONS}" USER_EXCLUDED_EXTENTIONS
+    # Remove first and last character, if either is a pipe
+    USER_EXCLUDED_EXTENTIONS="$(echo "$USER_EXCLUDED_EXTENTIONS" | sed 's/^|//' | sed 's/|$//')"
+else
+    # Running non-interactive, so set to default
+    USER_EXCLUDED_EXTENTIONS="$DEFAULT_EXCLUDED_EXTENTIONS"
+fi
+
+# If user passed troubleshoot flag, output variables before continuing
+if [ "$SHOW_TROUBLESHOOTING" -eq 1 ] && { [ "$SHOW_HELP" -eq 0 ] || [ "$SHOW_VERSION" -eq 0 ]; } then
+    showTroubleshooting
 fi
 
 echo ""
@@ -362,7 +408,7 @@ echo "${COLOR_RESET}Fetching URLs for ${DISPLAY_DOMAIN}"
 # Start process
 echo ""
 # Start process, with spinner
-fetchSiteUrls $USER_FILENAME & displaySpinner
+fetchUrlsForDomain $USER_FILENAME & displaySpinner
 
 # Process is complete
 
