@@ -79,7 +79,7 @@ The desired name of the generated file, without spaces or file extension.
 ### exclude
 
 - Usage: `-e`, `--exclude`
-- Default: [See the list of default excluded file extensions](#excluded-files)
+- Default: [See the default list of excluded file extensions](#excluded-files)
 - Example: `"css|js|map"`
 
 Pipe-delimited list of file extensions to exclude from results.
