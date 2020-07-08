@@ -64,7 +64,8 @@ while (( "$#" )); do
         # FILENAME
         -f|--filename)
             if [ "$2" ]; then
-                USER_FILENAME="$2"
+                # Remove non-alpha-numeric characters (other than dash)
+                USER_FILENAME="$(echo "$2" | sed 's/[^[:alnum:]-]//g')"
                 shift # Remove argument name from processing
             else
                 echo "${COLOR_RED}ERROR: Value for $1 is required. Remove $1 flag to use the default value."${COLOR_RESET} >&2
@@ -72,7 +73,8 @@ while (( "$#" )); do
             fi
             ;;
         -f=*|--filename=*)
-            USER_FILENAME="${1#*=}"
+            # Remove non-alpha-numeric characters (other than dash)
+            USER_FILENAME="$(echo "${1#*=}" | sed 's/[^[:alnum:]-]//g')"
             shift # Remove filename from processing
             ;;
         # LOCATION
@@ -101,7 +103,8 @@ while (( "$#" )); do
             fi
             ;;
         -e=*|--exclude=*)
-            USER_EXCLUDED_EXTENTIONS="${1#*=}"
+            # Remove first and last character, if either is a pipe
+            USER_EXCLUDED_EXTENTIONS="$(echo "${1#*=}" | sed 's/^|//' | sed 's/|$//')"
             shift # Remove location from processing
             ;;
         # End of all options
@@ -320,6 +323,12 @@ elif [ "$SHOW_VERSION" -eq 1 ]; then
     showVersion
     exit
 elif [ "$SHOW_WGET_INSTALL_INFO" -eq 1 ] || [ "$WGET_INSTALLED" -eq 0 ]; then
+
+    # If user passed troubleshoot flag, output variables
+    if [ "$SHOW_TROUBLESHOOTING" -eq 1 ]; then
+        showTroubleshooting
+    fi
+
     showWgetInstallInfo
     exit
 fi
@@ -380,7 +389,8 @@ if [ -z "$USER_FILENAME" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
     echo "${COLOR_RESET}"
     echo "Save file as"
     read -e -p "Filename (no file extension, and no spaces): ${COLOR_CYAN}" -i "${GENERATED_FILENAME}" USER_FILENAME
-    USER_FILENAME="$USER_FILENAME"
+    # Remove non-alpha-numeric characters (other than dash)
+    USER_FILENAME="$(echo "$USER_FILENAME" | sed 's/[^[:alnum:]-]//g')"
 else
     # Running non-interactive, so set to default
     USER_FILENAME="$GENERATED_FILENAME"
