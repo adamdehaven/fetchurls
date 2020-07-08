@@ -79,7 +79,7 @@ The desired name of the generated file, without spaces or file extension.
 ### exclude
 
 - Usage: `-e`, `--exclude`
-- Default: `"bmp|css|doc|docx|gif|jpeg|jpg|JPG|js|map|pdf|PDF|png|ppt|pptx|svg|ts|txt|xls|xlsx|xml"`
+- Default: [See the list of excluded file extensions](#excluded-files)
 - Example: `"css|js|map"`
 
 Pipe-delimited list of file extensions to exclude from results.
@@ -169,7 +169,9 @@ The script will crawl the site and compile a list of valid URLs into a text file
 
 ## Excluded Files and Directories
 
-The script, by default, filters out many file extensions that are commonly not needed as a reference. The list of file extensions can be passed via the [`--exclude` flag](#exclude), or within interactive mode. In addition, common WordPress files and directories are also ignored.
+The script, by default, filters out many file extensions that are commonly not needed.
+
+The list of file extensions can be passed via the [`--exclude` flag](#exclude), or provided via the interactive mode.
 
 ### Excluded Files
 
@@ -196,6 +198,8 @@ The script, by default, filters out many file extensions that are commonly not n
 - `.xml`
 
 ### Excluded Directories
+
+In addition, specific site (including WordPress) files and directories are also ignored.
 
 - `/wp-content/uploads/`
 - `/feed/`
