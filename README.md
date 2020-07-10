@@ -126,7 +126,7 @@ If you do not pass the --domain flag, the script will run in interactive mode an
 
 First, you will be prompted to enter the full URL (including HTTPS/HTTP protocol) of the site you would like to crawl:
 
-```txt
+```text
 Fetch a list of unique URLs for a domain.
 
 Enter the full domain URL ( http://example.com )
@@ -135,28 +135,28 @@ Domain URL:
 
 You will then be prompted to enter the location (directory) of where you would like the generated results to be saved (defaults to Desktop on Windows):
 
-```txt
+```text
 Save file to directory
 Directory: /c/Users/username/Desktop
 ```
 
 Next, you will be prompted to change/accept the name of the outputted file (simply press enter to accept the default filename):
 
-```txt
+```text
 Save file as
 Filename (no file extension, and no spaces): example-com
 ```
 
 Finally, you will be prompted to change/accept the default list of excluded file extensions (press enter to accept the default list):
 
-```txt
+```text
 Exclude files with matching extensions
 Excluded extensions: bmp|css|doc|docx|gif|jpeg|jpg|JPG|js|map|pdf|PDF|png|ppt|pptx|svg|ts|txt|xls|xlsx|xml
 ```
 
 When complete, the script will show a message and the location of your outputted file:
 
-```txt
+```text
 Fetching URLs for example.com
 
 Finished with 1 result!
