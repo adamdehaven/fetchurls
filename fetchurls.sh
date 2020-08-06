@@ -24,7 +24,7 @@ COLOR_YELLOW=$'\e[33m'
 COLOR_GREEN=$'\e[32m'
 COLOR_RESET=$'\e[0m'
 
-VERSION="v3.0.0"
+VERSION="v3.1.0"
 
 PARAMS=""
 
