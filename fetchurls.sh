@@ -13,6 +13,9 @@ DEFAULT_SAVE_LOCATION=~/Desktop
 USER_SAVE_LOCATION=
 DEFAULT_EXCLUDED_EXTENTIONS="bmp|css|doc|docx|gif|jpeg|jpg|JPG|js|map|pdf|PDF|png|ppt|pptx|svg|ts|txt|xls|xlsx|xml"
 USER_EXCLUDED_EXTENTIONS=
+USER_CRENDENTIAL_USERNAME=
+USER_CRENDENTIAL_PASSWORD=
+USER_CREDENTIALS=
 
 # Set colors
 COLOR_RED=$'\e[31m'
@@ -44,7 +47,7 @@ while (( "$#" )); do
         -n|--non-interactive)
             RUN_NONINTERACTIVE=1
             ;;
-        -t|--troubleshoot)
+        -t|--troubleshooting)
             SHOW_TROUBLESHOOTING=1
             ;;
         # DOMAIN
@@ -59,7 +62,6 @@ while (( "$#" )); do
             ;;
         -d=*?|--domain=*?)
             USER_DOMAIN="${1#*=}"
-            shift # Remove domain from processing
             ;;
         # FILENAME
         -f|--filename)
@@ -75,7 +77,6 @@ while (( "$#" )); do
         -f=*|--filename=*)
             # Remove non-alpha-numeric characters (other than dash)
             USER_FILENAME="$(echo "${1#*=}" | sed 's/[^[:alnum:]-]//g')"
-            shift # Remove filename from processing
             ;;
         # LOCATION
         -l|--location)
@@ -89,7 +90,6 @@ while (( "$#" )); do
             ;;
         -l=*|--location=*)
             USER_SAVE_LOCATION="${1#*=}"
-            shift # Remove location from processing
             ;;
         # EXCLUDE FILE EXTENSIONS
         -e|--exclude)
@@ -105,7 +105,32 @@ while (( "$#" )); do
         -e=*|--exclude=*)
             # Remove first and last character, if either is a pipe
             USER_EXCLUDED_EXTENTIONS="$(echo "${1#*=}" | sed 's/^|//' | sed 's/|$//')"
-            shift # Remove location from processing
+            ;;
+        # USER_CREDENTIALS_USERNAME
+        -u|--username)
+            if [ "$2" ]; then
+                USER_CREDENTIALS_USERNAME="$2"
+                shift # Remove argument name from processing
+            else
+                echo "${COLOR_RED}ERROR: Value for $1 is required."${COLOR_RESET} >&2
+                exit 1
+            fi
+            ;;
+        -u=*?|--username=*?)
+            USER_CREDENTIALS_USERNAME="${1#*=}"
+            ;;
+        # USER_CREDENTIALS_PASSWORD
+        -p|--password)
+            if [ "$2" ]; then
+                USER_CREDENTIALS_PASSWORD="$2"
+                shift # Remove argument name from processing
+            else
+                echo "${COLOR_RED}ERROR: Value for $1 is required."${COLOR_RESET} >&2
+                exit 1
+            fi
+            ;;
+        -p=*?|--password=*?)
+            USER_CREDENTIALS_PASSWORD="${1#*=}"
             ;;
         # End of all options
         -*|--*=) # unsupported flags
@@ -188,6 +213,16 @@ showHelp()
     echo "                                Default: ${COLOR_YELLOW}\"$DEFAULT_EXCLUDED_EXTENTIONS\"${COLOR_RESET}"
     echo "                                Example: ${COLOR_CYAN}\"css|js|map\"${COLOR_RESET}"
     echo ""
+    echo "  -u, --username                If the domain URL requires authentication, the username to pass to the wget command."
+    echo "                                If the username contains space characters, you must pass inside quotes."
+    echo "                                This value may only be set with a flag; there is no prompt in interactive mode."
+    echo "                                Example: ${COLOR_CYAN}marty_mcfly${COLOR_RESET}"
+    echo ""
+    echo "  -p, --password                If the domain URL requires authentication, the password to pass to the wget command."
+    echo "                                If the password contains space characters, you must pass inside quotes."
+    echo "                                This value may only be set with a flag; there is no prompt in interactive mode."
+    echo "                                Example: ${COLOR_CYAN}thats_heavy${COLOR_RESET}"
+    echo ""
     echo "  -n, --non-interactive         Allows the script to run successfully in a non-interactive shell."
     echo "                                Uses the default --location and --filename settings unless the corresponding flags are set."
     echo ""
@@ -238,6 +273,8 @@ showTroubleshooting()
     echo "  USER_FILENAME:              ${COLOR_CYAN}$USER_FILENAME${COLOR_RESET}"
     echo "  USER_SAVE_LOCATION:         ${COLOR_CYAN}$USER_SAVE_LOCATION${COLOR_RESET}"
     echo "  USER_EXCLUDED_EXTENTIONS:   ${COLOR_CYAN}$USER_EXCLUDED_EXTENTIONS${COLOR_RESET}"
+    echo "  USER_CREDENTIALS_USERNAME:   ${COLOR_CYAN}$USER_CREDENTIALS_USERNAME${COLOR_RESET}"
+    echo "  USER_CREDENTIALS_PASSWORD:   ${COLOR_CYAN}$USER_CREDENTIALS_PASSWORD${COLOR_RESET}"
 }
 
 checkForWget()
@@ -267,7 +304,7 @@ displaySpinner()
 }
 
 fetchUrlsForDomain() {
-  cd $USER_SAVE_LOCATION && wget --spider -r -nd --max-redirect=30 $USER_DOMAIN 2>&1 \
+  cd $USER_SAVE_LOCATION && wget --spider -r -nd --max-redirect=30 $USER_CREDENTIALS $USER_DOMAIN 2>&1 \
   | grep '^--' \
   | awk '{ print $3 }' \
   | grep -E -v '\.('${USER_EXCLUDED_EXTENTIONS}')(\?.*)?$' \
@@ -412,6 +449,13 @@ fi
 # If user passed troubleshoot flag, output variables before continuing
 if [ "$SHOW_TROUBLESHOOTING" -eq 1 ] && { [ "$SHOW_HELP" -eq 0 ] || [ "$SHOW_VERSION" -eq 0 ]; } then
     showTroubleshooting
+fi
+
+# Check for credentials
+if [ -z "$USER_CREDENTIALS_USERNAME" ] || [ -z "$USER_CREDENTIALS_PASSWORD" ]; then
+    USER_CREDENTIALS=
+else
+    USER_CREDENTIALS="--username=${USER_CREDENTIALS_USERNAME} --password=${USER_CREDENTIALS_PASSWORD}"
 fi
 
 echo ""

@@ -31,17 +31,19 @@ A bash script to spider a site, follow links, and fetch urls (with built-in filt
     ./fetchurls.sh [OPTIONS]...
     ```
 
-    If you do not pass any options, the script will run interactively.
+    Alternatively, you may execute with either of the following:
 
-Alternatively, you may execute with either of the following:
+    ```shell
+    sh ./fetchurls.sh [OPTIONS]...
 
-```shell
-sh ./fetchurls.sh [OPTIONS]...
+    # -- OR -- #
 
-# -- OR -- #
+    bash ./fetchurls.sh [OPTIONS]...
+    ```
 
-bash ./fetchurls.sh [OPTIONS]...
-```
+If you do not pass any options, the script will run in interactive mode.
+
+If the domain URL requires authentication, you must pass the username and password as flags; you are not prompted for these values in interactive mode.
 
 ## Options
 
@@ -87,6 +89,24 @@ Pipe-delimited list of file extensions to exclude from results.
 To prevent excluding files matching the default list of file extensions, simply pass an empty string: \"\""
 
 **Note**: The list of file extensions must be passed inside quotes.
+
+### username
+
+- Usage: `-u`, `--username`
+- Example: `marty_mcfly`
+
+If the domain URL requires authentication, the username to pass to the wget command.
+
+If the username contains space characters, you must pass inside quotes. This value may only be set with a flag; there is no prompt in interactive mode.
+
+### password
+
+- Usage: `-p`, `--password`
+- Example: `thats_heavy`
+
+If the domain URL requires authentication, the password to pass to the wget command.
+
+If the password contains space characters, you must pass inside quotes. This value may only be set with a flag; there is no prompt in interactive mode.
 
 ### non-interactive
 
