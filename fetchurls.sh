@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VERSION="v3.1.1"
+
 # Set Defaults
 WGET_INSTALLED=0
 RUN_NONINTERACTIVE=0
@@ -13,6 +15,7 @@ DEFAULT_SAVE_LOCATION=~/Desktop
 USER_SAVE_LOCATION=
 DEFAULT_EXCLUDED_EXTENTIONS="bmp|css|doc|docx|gif|jpeg|jpg|JPG|js|map|pdf|PDF|png|ppt|pptx|svg|ts|txt|xls|xlsx|xml"
 USER_EXCLUDED_EXTENTIONS=
+USER_SLEEP=
 USER_CRENDENTIAL_USERNAME=
 USER_CRENDENTIAL_PASSWORD=
 USER_CREDENTIALS=
@@ -24,9 +27,12 @@ COLOR_YELLOW=$'\e[33m'
 COLOR_GREEN=$'\e[32m'
 COLOR_RESET=$'\e[0m'
 
-VERSION="v3.1.0"
-
 PARAMS=""
+
+# RegEx for flag validation
+
+# Check for number, max 3 digits
+REGEX_IS_NUMBER='^[0-9]{1,3}$'
 
 # Loop through arguments and process them
 while (( "$#" )); do
@@ -105,6 +111,24 @@ while (( "$#" )); do
         -e=*|--exclude=*)
             # Remove first and last character, if either is a pipe
             USER_EXCLUDED_EXTENTIONS="$(echo "${1#*=}" | sed 's/^|//' | sed 's/|$//')"
+            ;;
+        # USER_SLEEP
+        -s|--sleep)
+            if [ "$2" ] && [[ "$2" =~ $REGEX_IS_NUMBER ]]; then
+                USER_SLEEP="$2"
+                shift # Remove argument name from processing
+            else
+                echo "${COLOR_RED}ERROR: Value for $1 is required, and must be a number."${COLOR_RESET} >&2
+                exit 1
+            fi
+            ;;
+        -s=*?|--sleep=*?)
+            if [[ "${1#*=}" =~ $REGEX_IS_NUMBER ]]; then
+                USER_SLEEP="${1#*=}"
+            else
+                echo "${COLOR_RED}ERROR: Value for --sleep must be a number."${COLOR_RESET} >&2
+                exit 1
+            fi
             ;;
         # USER_CREDENTIALS_USERNAME
         -u|--username)
@@ -213,6 +237,10 @@ showHelp()
     echo "                                Default: ${COLOR_YELLOW}\"$DEFAULT_EXCLUDED_EXTENTIONS\"${COLOR_RESET}"
     echo "                                Example: ${COLOR_CYAN}\"css|js|map\"${COLOR_RESET}"
     echo ""
+    echo "  -s, --sleep                   The number of seconds to wait between retrievals."
+    echo "                                Default: ${COLOR_YELLOW}0${COLOR_RESET}"
+    echo "                                Example: ${COLOR_CYAN}2${COLOR_RESET}"
+    echo ""
     echo "  -u, --username                If the domain URL requires authentication, the username to pass to the wget command."
     echo "                                If the username contains space characters, you must pass inside quotes."
     echo "                                This value may only be set with a flag; there is no prompt in interactive mode."
@@ -273,6 +301,7 @@ showTroubleshooting()
     echo "  USER_FILENAME:              ${COLOR_CYAN}$USER_FILENAME${COLOR_RESET}"
     echo "  USER_SAVE_LOCATION:         ${COLOR_CYAN}$USER_SAVE_LOCATION${COLOR_RESET}"
     echo "  USER_EXCLUDED_EXTENTIONS:   ${COLOR_CYAN}$USER_EXCLUDED_EXTENTIONS${COLOR_RESET}"
+    echo "  USER_SLEEP:                 ${COLOR_CYAN}$USER_SLEEP${COLOR_RESET}"
     echo "  USER_CREDENTIALS_USERNAME:   ${COLOR_CYAN}$USER_CREDENTIALS_USERNAME${COLOR_RESET}"
     echo "  USER_CREDENTIALS_PASSWORD:   ${COLOR_CYAN}$USER_CREDENTIALS_PASSWORD${COLOR_RESET}"
 }
@@ -304,7 +333,7 @@ displaySpinner()
 }
 
 fetchUrlsForDomain() {
-  cd $USER_SAVE_LOCATION && wget --spider -r -nd --max-redirect=30 $USER_CREDENTIALS $USER_DOMAIN 2>&1 \
+  cd $USER_SAVE_LOCATION && wget --spider -r -nd --max-redirect=30 $USER_SLEEP $USER_CREDENTIALS $USER_DOMAIN 2>&1 \
   | grep '^--' \
   | awk '{ print $3 }' \
   | grep -E -v '\.('${USER_EXCLUDED_EXTENTIONS}')(\?.*)?$' \
@@ -387,9 +416,12 @@ fi
 USER_DOMAIN="${USER_DOMAIN%/}"
 DISPLAY_DOMAIN="$(echo ${USER_DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*")"
 GENERATED_FILENAME="$(echo ${USER_DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*" | tr "." "-")"
+# Remove non-alpha-numeric characters (other than dash)
+GENERATED_FILENAME="$(echo "$GENERATED_FILENAME" | sed 's/[^[:alnum:]-]/-/g')"
 
 # Check if URL is valid and returns 200 status
 URL_STATUS=$(wget --spider -q --server-response $USER_DOMAIN 2>&1 | grep --max-count=1 "HTTP/" | awk '{print $2}')
+echo "status: ${URL_STATUS}"
 # If response is 301, follow redirect
 if [ "$URL_STATUS" = "301" ]; then
     # Get redirect URL
@@ -400,6 +432,21 @@ if [ "$URL_STATUS" = "301" ]; then
     echo ""
     echo "Script will fetch ${COLOR_CYAN}${USER_DOMAIN}${COLOR_RESET} instead"
     echo ""
+elif [ "$URL_STATUS" = "401" ]; then
+    echo "${COLOR_RESET}"
+    echo "${COLOR_YELLOW}NOTE: '${USER_DOMAIN}' requires authentication.${COLOR_RESET}"
+    # If --username or --password is not set, show additional message
+    if [ -z "$USER_CREDENTIALS_USERNAME" ] || [ -z "$USER_CREDENTIALS_PASSWORD" ]; then
+        echo ""
+        echo "Since you did not pass a --username and --password, the script will"
+        echo "likely only scrape the first URL that prompts for authentication."
+        if [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
+            echo ""
+            echo "${COLOR_YELLOW}You have 5 seconds to cancel (Ctrl + C)${COLOR_RESET}"
+            # Sleep to potentially let user cancel
+            sleep 5
+        fi
+    fi
 elif [ "$URL_STATUS" != "200" ] || [ -z "$URL_STATUS" ]; then
     echo "${COLOR_RESET}"
     echo "${COLOR_RED}ERROR: '${USER_DOMAIN}' is unresponsive or is not a valid URL.${COLOR_RESET}"
@@ -427,7 +474,7 @@ if [ -z "$USER_FILENAME" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
     echo "Save file as"
     read -e -p "Filename (no file extension, and no spaces): ${COLOR_CYAN}" -i "${GENERATED_FILENAME}" USER_FILENAME
     # Remove non-alpha-numeric characters (other than dash)
-    USER_FILENAME="$(echo "$USER_FILENAME" | sed 's/[^[:alnum:]-]//g')"
+    USER_FILENAME="$(echo "$USER_FILENAME" | sed 's/[^[:alnum:]-]/-/g')"
 else
     # Running non-interactive, so set to default
     USER_FILENAME="$GENERATED_FILENAME"
@@ -451,11 +498,18 @@ if [ "$SHOW_TROUBLESHOOTING" -eq 1 ] && { [ "$SHOW_HELP" -eq 0 ] || [ "$SHOW_VER
     showTroubleshooting
 fi
 
+# Check for USER_SLEEP
+if [ -z "$USER_SLEEP" ] || [ "$USER_SLEEP" -eq 0 ]; then
+    USER_SLEEP=
+else
+    USER_SLEEP="--wait=${USER_SLEEP}"
+fi
+
 # Check for credentials
 if [ -z "$USER_CREDENTIALS_USERNAME" ] || [ -z "$USER_CREDENTIALS_PASSWORD" ]; then
     USER_CREDENTIALS=
 else
-    USER_CREDENTIALS="--username=${USER_CREDENTIALS_USERNAME} --password=${USER_CREDENTIALS_PASSWORD}"
+    USER_CREDENTIALS="--user=${USER_CREDENTIALS_USERNAME} --password=${USER_CREDENTIALS_PASSWORD}"
 fi
 
 echo ""
