@@ -90,6 +90,14 @@ To prevent excluding files matching the default list of file extensions, simply 
 
 **Note**: The list of file extensions must be passed inside quotes.
 
+### sleep
+
+- Usage: `-s`, `--sleep`
+- Default: `0`
+- Example: `2`
+
+The number of seconds to wait between retrievals.
+
 ### username
 
 - Usage: `-u`, `--username`
