@@ -188,7 +188,7 @@ footerInfo()
     echo "  https://github.com/adamdehaven/fetchurls"
     echo ""
     echo "Created by Adam DeHaven"
-    echo "  @adamdehaven or https://adamdehaven.com"
+    echo "  @adamdehaven or https://www.adamdehaven.com"
     echo ""
 }
 

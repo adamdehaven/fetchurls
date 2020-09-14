@@ -56,7 +56,7 @@ You may pass options (as flags) directly to the script, or pass nothing to run t
 
 The fully qualified domain URL (with protocol) you would like to crawl.
 
-Ensure that you enter the correct protocol (e.g. `https`) and subdomain for the URL or the outputted file may be empty or incomplete. The script will automatically attempt to follow the first HTTP redirect, if found. For example, if you enter the incorrect protocol (`http://...`) for `https://adamdehaven.com`, the script will automatically follow the redirect and fetch all URLs for the correct HTTPS protocol.
+Ensure that you enter the correct protocol (e.g. `https`) and subdomain for the URL or the outputted file may be empty or incomplete. The script will automatically attempt to follow the first HTTP redirect, if found. For example, if you enter the incorrect protocol (`http://...`) for `https://www.adamdehaven.com`, the script will automatically follow the redirect and fetch all URLs for the correct HTTPS protocol.
 
 The domain's URLs will be successfully spidered as long as the target URL (or the first redirect) returns a status of `HTTP 200 OK`.
 
