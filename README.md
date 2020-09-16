@@ -19,13 +19,15 @@ A bash script to spider a site, follow links, and fetch urls (with built-in filt
     2. If you downloaded the zip, extract all (if windows built in zip utility gives an error, use 7-zip). In addition, if you downloaded the 64-bit version, rename the `wget64.exe` file to `wget.exe`
     3. Move `wget.exe` to `C:\Windows\System32\`
 
-3. Open Git Bash, Terminal, etc. and set execute permissions for the `fetchurls.sh` script:
+3. Ensure the version of `grep` on your computer supports `-E, --extended-regexp`. To check for support, run `grep --help` and look for the flag. To check the installed version, run `grep -V`.
+
+4. Open Git Bash, Terminal, etc. and set execute permissions for the `fetchurls.sh` script:
 
     ```shell
     chmod +x /path/to/script/fetchurls.sh
     ```
 
-4. Enter the following to run the script:
+5. Enter the following to run the script:
 
     ```shell
     ./fetchurls.sh [OPTIONS]...
@@ -56,7 +58,7 @@ You may pass options (as flags) directly to the script, or pass nothing to run t
 
 The fully qualified domain URL (with protocol) you would like to crawl.
 
-Ensure that you enter the correct protocol (e.g. `https`) and subdomain for the URL or the outputted file may be empty or incomplete. The script will automatically attempt to follow the first HTTP redirect, if found. For example, if you enter the incorrect protocol (`http://...`) for `https://www.adamdehaven.com`, the script will automatically follow the redirect and fetch all URLs for the correct HTTPS protocol.
+Ensure that you enter the correct protocol (e.g. `https`) and subdomain for the URL or the generated file may be empty or incomplete. The script will automatically attempt to follow the first HTTP redirect, if found. For example, if you enter the incorrect protocol (`http://...`) for `https://www.adamdehaven.com`, the script will automatically follow the redirect and fetch all URLs for the correct HTTPS protocol.
 
 The domain's URLs will be successfully spidered as long as the target URL (or the first redirect) returns a status of `HTTP 200 OK`.
 
@@ -168,7 +170,7 @@ Save file to directory
 Directory: /c/Users/username/Desktop
 ```
 
-Next, you will be prompted to change/accept the name of the outputted file (simply press enter to accept the default filename):
+Next, you will be prompted to change/accept the name of the generated file (simply press enter to accept the default filename):
 
 ```shell
 Save file as
@@ -182,7 +184,7 @@ Exclude files with matching extensions
 Excluded extensions: bmp|css|doc|docx|gif|jpeg|jpg|JPG|js|map|pdf|PDF|png|ppt|pptx|svg|ts|txt|xls|xlsx|xml
 ```
 
-When complete, the script will show a message and the location of your outputted file:
+The script will crawl the site and compile a list of valid URLs into a new text file. When complete, the script will show a message and the location of the generated file:
 
 ```shell
 Fetching URLs for example.com
@@ -193,7 +195,7 @@ File Location:
 /c/Users/username/Desktop/example-com.txt
 ```
 
-The script will crawl the site and compile a list of valid URLs into a text file that will be placed on your Desktop.
+If a file of the same name already exists at the location (e.g. if you previously ran the script for the same URL), **the original file will be overwritten**.
 
 ## Excluded Files and Directories
 
