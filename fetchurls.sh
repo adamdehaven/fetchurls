@@ -304,6 +304,8 @@ showTroubleshooting()
     echo "  USER_SLEEP:                 ${COLOR_CYAN}$USER_SLEEP${COLOR_RESET}"
     echo "  USER_CREDENTIALS_USERNAME:   ${COLOR_CYAN}$USER_CREDENTIALS_USERNAME${COLOR_RESET}"
     echo "  USER_CREDENTIALS_PASSWORD:   ${COLOR_CYAN}$USER_CREDENTIALS_PASSWORD${COLOR_RESET}"
+    echo "${COLOR_YELLOW}Response:${COLOR_RESET}"
+    echo "  HTTP Status:                 ${COLOR_CYAN}$URL_STATUS${COLOR_RESET}"
 }
 
 checkForWget()
@@ -421,18 +423,33 @@ GENERATED_FILENAME="$(echo "$GENERATED_FILENAME" | sed 's/[^[:alnum:]-]/-/g')"
 
 # Check if URL is valid and returns 200 status
 URL_STATUS=$(wget --spider -q --server-response $USER_DOMAIN 2>&1 | grep --max-count=1 "HTTP/" | awk '{print $2}')
-echo "status: ${URL_STATUS}"
-# If response is 301, follow redirect
-if [ "$URL_STATUS" = "301" ]; then
+
+if [ -z "$URL_STATUS" ]; then
+    echo "${COLOR_RESET}"
+    echo "${COLOR_RED}ERROR: '${USER_DOMAIN}' is unresponsive or is not a valid URL.${COLOR_RESET}"
+    echo "${COLOR_RED}       Ensure the site is up by checking in your browser, then try again.${COLOR_RESET}"
+    exit 1
+# If response is 3xx, follow redirect
+elif [ "$URL_STATUS" -ge 300 ] && [ "$URL_STATUS" -le 399 ]; then
     # Get redirect URL
     FORWARDED_URI=$(wget --spider -q --server-response $USER_DOMAIN 2>&1 | grep --max-count=1 "Location" | awk '{print $2}')
     echo "${COLOR_RESET}"
-    echo "${COLOR_YELLOW}NOTE: ${USER_DOMAIN} is permanently forwarded to ${FORWARDED_URI}${COLOR_RESET}"
+
+    if [ "$URL_STATUS" -eq 301 ]; then
+        echo "${COLOR_YELLOW}NOTE: ${USER_DOMAIN} is permanently forwarded (${URL_STATUS}) to ${FORWARDED_URI}${COLOR_RESET}"
+    elif [ "$URL_STATUS" -eq 307 ]; then
+        echo "${COLOR_YELLOW}NOTE: ${USER_DOMAIN} is temporarily redirected (${URL_STATUS}) to ${FORWARDED_URI}${COLOR_RESET}"
+    elif [ "$URL_STATUS" -eq 308 ]; then
+        echo "${COLOR_YELLOW}NOTE: ${USER_DOMAIN} is permanently redirected (${URL_STATUS}) to ${FORWARDED_URI}${COLOR_RESET}"
+    else
+        echo "${COLOR_YELLOW}NOTE: ${USER_DOMAIN} is being redirected (${URL_STATUS}) to ${FORWARDED_URI}${COLOR_RESET}"
+    fi
+
     USER_DOMAIN=$FORWARDED_URI
     echo ""
-    echo "Script will fetch ${COLOR_CYAN}${USER_DOMAIN}${COLOR_RESET} instead"
+    echo "Script will fetch ${COLOR_CYAN}${USER_DOMAIN}${COLOR_RESET} instead."
     echo ""
-elif [ "$URL_STATUS" = "401" ]; then
+elif [ "$URL_STATUS" -eq 401 ]; then
     echo "${COLOR_RESET}"
     echo "${COLOR_YELLOW}NOTE: '${USER_DOMAIN}' requires authentication.${COLOR_RESET}"
     # If --username or --password is not set, show additional message
@@ -447,9 +464,15 @@ elif [ "$URL_STATUS" = "401" ]; then
             sleep 5
         fi
     fi
-elif [ "$URL_STATUS" != "200" ] || [ -z "$URL_STATUS" ]; then
+elif [ "$URL_STATUS" -eq 408 ]; then
     echo "${COLOR_RESET}"
-    echo "${COLOR_RED}ERROR: '${USER_DOMAIN}' is unresponsive or is not a valid URL.${COLOR_RESET}"
+    echo "${COLOR_RED}ERROR: Request timed out for '${USER_DOMAIN}'.${COLOR_RESET}"
+    echo "${COLOR_RED}       Ensure the site is up by checking in your browser, then try again.${COLOR_RESET}"
+    exit 1
+# 5xx Server Errors
+elif [ "$URL_STATUS" -ge 500 ] && [ "$URL_STATUS" -le 599 ]; then
+    echo "${COLOR_RESET}"
+    echo "${COLOR_RED}ERROR: '${USER_DOMAIN}' encountered a $URL_STATUS Server Error.${COLOR_RESET}"
     echo "${COLOR_RED}       Ensure the site is up by checking in your browser, then try again.${COLOR_RESET}"
     exit 1
 fi
