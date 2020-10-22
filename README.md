@@ -126,6 +126,12 @@ Allows the script to run successfully in a non-interactive shell.
 
 The script will utilize the default [`--location`](#l-location) and [`--filename`](#f-filename) settings unless the respective flags are explicitely set.
 
+### ignore-robots
+
+- Usage: `-i`, `--ignore-robots`
+
+Ignore robots.txt for the domain.
+
 ### wget
 
 - Usage: `-w`, `--wget`
@@ -242,6 +248,6 @@ In addition, specific site (including WordPress) files and directories are also 
 
 ## Advanced Usage
 
-The script should filter out most unwanted file types and directories; however, you can edit the regular expressions that filter out certain pages, directories, and file types by editing the `fetchSiteUrls()` function within the `fetchurls.sh` file.
+The script should filter out most unwanted file types and directories; however, you can edit the regular expressions that filter out certain pages, directories, and file types by editing the `fetchUrlsForDomain()` function within the `fetchurls.sh` file.
 
 **Warning**: If you're not familiar with [grep](https://man7.org/linux/man-pages//man1/grep.1.html) or regular expressions, you can easily break the script.
