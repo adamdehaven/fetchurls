@@ -1,10 +1,11 @@
 #!/bin/bash
 
-VERSION="v3.2.1"
+VERSION="v3.2.2"
 
 # Set Defaults
 WGET_INSTALLED=0
 RUN_NONINTERACTIVE=0
+IGNORE_ROBOTS=0
 SHOW_HELP=0
 SHOW_WGET_INSTALL_INFO=0
 SHOW_VERSION=0
@@ -55,6 +56,9 @@ while (( "$#" )); do
             ;;
         -t|--troubleshooting)
             SHOW_TROUBLESHOOTING=1
+            ;;
+        -i|--ignore-robots)
+            IGNORE_ROBOTS=1
             ;;
         # DOMAIN
         -d|--domain)
@@ -254,6 +258,8 @@ showHelp()
     echo "  -n, --non-interactive         Allows the script to run successfully in a non-interactive shell."
     echo "                                Uses the default --location and --filename settings unless the corresponding flags are set."
     echo ""
+    echo "  -i, --ignore-robots           Ignore robots.txt for the domain."
+    echo ""
     echo "  -w, --wget                    Show wget install instructions."
     echo "                                The installation process may vary depending on your computer's configuration."
     echo ""
@@ -297,6 +303,7 @@ showTroubleshooting()
     echo "  SHOW_HELP:                  ${COLOR_CYAN}$SHOW_HELP${COLOR_RESET}"
     echo "  SHOW_VERSION:               ${COLOR_CYAN}$SHOW_VERSION${COLOR_RESET}"
     echo "  RUN_NONINTERACTIVE:         ${COLOR_CYAN}$RUN_NONINTERACTIVE${COLOR_RESET}"
+    echo "  IGNORE_ROBOTS:              ${COLOR_CYAN}$IGNORE_ROBOTS${COLOR_RESET}"
     echo "  USER_DOMAIN:                ${COLOR_CYAN}$USER_DOMAIN${COLOR_RESET}"
     echo "  USER_FILENAME:              ${COLOR_CYAN}$USER_FILENAME${COLOR_RESET}"
     echo "  USER_SAVE_LOCATION:         ${COLOR_CYAN}$USER_SAVE_LOCATION${COLOR_RESET}"
@@ -335,7 +342,7 @@ displaySpinner()
 }
 
 fetchUrlsForDomain() {
-  cd $USER_SAVE_LOCATION && wget --spider -r -nd --max-redirect=30 $USER_SLEEP $USER_CREDENTIALS $USER_DOMAIN 2>&1 \
+  cd $USER_SAVE_LOCATION && wget --spider -r -nd --max-redirect=30 $IGNORE_ROBOTS $USER_SLEEP $USER_CREDENTIALS $USER_DOMAIN 2>&1 \
   | grep '^--' \
   | awk '{ print $3 }' \
   | grep -E -v '\.('${USER_EXCLUDED_EXTENTIONS}')(\?.*)?$' \
@@ -526,6 +533,13 @@ if [ -z "$USER_SLEEP" ] || [ "$USER_SLEEP" -eq 0 ]; then
     USER_SLEEP=
 else
     USER_SLEEP="--wait=${USER_SLEEP}"
+fi
+
+# Check for IGNORE_ROBOTS
+if [ -z "$IGNORE_ROBOTS" ] || [ "$IGNORE_ROBOTS" -eq 0 ]; then
+    IGNORE_ROBOTS=
+else
+    IGNORE_ROBOTS="--execute robots=off"
 fi
 
 # Check for credentials
