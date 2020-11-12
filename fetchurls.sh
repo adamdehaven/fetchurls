@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 VERSION="v3.2.3"
 
