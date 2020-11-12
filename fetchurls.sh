@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-VERSION="v3.2.2"
+VERSION="v3.2.3"
 
 # Set Defaults
 WGET_INSTALLED=0
