@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION="v3.2.3"
+VERSION="v3.2.4"
 
 # Set Defaults
 WGET_INSTALLED=0
@@ -490,7 +490,7 @@ if [ -z "$USER_SAVE_LOCATION" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
     echo "${COLOR_RESET}"
     echo "Save file to directory"
     read -e -p "Location: ${COLOR_CYAN}" -i "${DEFAULT_SAVE_LOCATION}" USER_SAVE_LOCATION
-else
+elif [ -z "$USER_SAVE_LOCATION" ] && [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
     # Running non-interactive, so set to default
     USER_SAVE_LOCATION="$DEFAULT_SAVE_LOCATION"
 fi
@@ -505,7 +505,7 @@ if [ -z "$USER_FILENAME" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
     read -e -p "Filename (no file extension, and no spaces): ${COLOR_CYAN}" -i "${GENERATED_FILENAME}" USER_FILENAME
     # Remove non-alpha-numeric characters (other than dash)
     USER_FILENAME="$(echo "$USER_FILENAME" | sed 's/[^[:alnum:]-]/-/g')"
-else
+elif [ -z "$USER_FILENAME" ] && [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
     # Running non-interactive, so set to default
     USER_FILENAME="$GENERATED_FILENAME"
 fi
@@ -518,7 +518,7 @@ if [ -z "$USER_EXCLUDED_EXTENTIONS" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
     read -e -p "Excluded extensions: ${COLOR_CYAN}" -i "${DEFAULT_EXCLUDED_EXTENTIONS}" USER_EXCLUDED_EXTENTIONS
     # Remove first and last character, if either is a pipe
     USER_EXCLUDED_EXTENTIONS="$(echo "$USER_EXCLUDED_EXTENTIONS" | sed 's/^|//' | sed 's/|$//')"
-else
+elif [ -z "$USER_EXCLUDED_EXTENTIONS" ] && [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
     # Running non-interactive, so set to default
     USER_EXCLUDED_EXTENTIONS="$DEFAULT_EXCLUDED_EXTENTIONS"
 fi
