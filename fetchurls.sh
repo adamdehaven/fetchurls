@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="v3.2.5"
+VERSION="v3.3.0"
 
 # Set Defaults
 WGET_INSTALLED=0
@@ -423,13 +423,13 @@ elif [ -z "$USER_DOMAIN" ] && [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
 fi
 
 USER_DOMAIN="${USER_DOMAIN%/}"
-DISPLAY_DOMAIN="$(echo ${USER_DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*")"
-GENERATED_FILENAME="$(echo ${USER_DOMAIN} | grep -oP "^http(s)?://(www\.)?\K.*" | tr "." "-")"
+DISPLAY_DOMAIN="$(echo ${USER_DOMAIN} | grep -ioP "^http(s)?://(www\.)?\K.*")"
+GENERATED_FILENAME="$(echo ${USER_DOMAIN} | grep -ioP "^http(s)?://(www\.)?\K.*" | tr "." "-")"
 # Remove non-alpha-numeric characters (other than dash)
 GENERATED_FILENAME="$(echo "$GENERATED_FILENAME" | sed 's/[^[:alnum:]-]/-/g')"
 
 # Check if URL is valid and returns 200 status
-URL_STATUS=$(wget --spider -q --server-response $USER_DOMAIN 2>&1 | grep --max-count=1 "HTTP/" | awk '{print $2}')
+URL_STATUS=$(wget --spider -q --server-response $USER_DOMAIN 2>&1 | grep --max-count=1 --ignore-case "HTTP/" | awk '{print $2}')
 
 if [ -z "$URL_STATUS" ]; then
     echo "${COLOR_RESET}"
@@ -439,7 +439,7 @@ if [ -z "$URL_STATUS" ]; then
 # If response is 3xx, follow redirect
 elif [ "$URL_STATUS" -ge 300 ] && [ "$URL_STATUS" -le 399 ]; then
     # Get redirect URL
-    FORWARDED_URI=$(wget --spider -q --server-response $USER_DOMAIN 2>&1 | grep --max-count=1 "Location" | awk '{print $2}')
+    FORWARDED_URI=$(wget --spider -q --server-response $USER_DOMAIN 2>&1 | grep --max-count=1 --ignore-case "Location" | awk '{print $2}')
     echo "${COLOR_RESET}"
 
     if [ "$URL_STATUS" -eq 301 ]; then
