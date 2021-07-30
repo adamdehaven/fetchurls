@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="v3.3.0"
+VERSION="v3.3.1"
 
 # Set Defaults
 WGET_INSTALLED=0
@@ -333,12 +333,12 @@ displaySpinner()
   local spinstr='|/-\'
   while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
       local temp=${spinstr#?}
-      printf "${COLOR_RESET}${COLOR_CYAN}Please wait... [ %c ]  " "$spinstr${COLOR_RESET}" # Count number of backspaces needed (A = 25)
+      printf "${COLOR_RESET}${COLOR_CYAN}Please wait... [%c]  " "$spinstr${COLOR_RESET}" # Count number of backspaces needed (A = 23)
       local spinstr=$temp${spinstr%"$temp"}
       sleep $delay
-      printf "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" # Number of backspaces from (A)
+      printf "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" # Number of backspaces from (A)
   done
-  printf "                         \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" # Number of spaces, then backspaces from (A)
+  printf "                         \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" # Number of spaces, then backspaces from (A)
 }
 
 fetchUrlsForDomain() {
