@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="v3.3.1"
+VERSION="v3.4.0"
 
 # Set Defaults
 WGET_INSTALLED=0
@@ -494,6 +494,13 @@ elif [ -z "$USER_SAVE_LOCATION" ] && [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
     # Running non-interactive, so set to default
     USER_SAVE_LOCATION="$DEFAULT_SAVE_LOCATION"
 fi
+
+# If user cleared out the default save location and continued, revert to back to default
+if [ -z "$USER_SAVE_LOCATION" ]; then
+  USER_SAVE_LOCATION="$DEFAULT_SAVE_LOCATION"
+  echo "${COLOR_YELLOW}NOTE: Saving to default location '$USER_SAVE_LOCATION'${COLOR_RESET}"
+fi
+
 # Create directory if it does not exist
 mkdir -p $USER_SAVE_LOCATION
 
@@ -508,6 +515,12 @@ if [ -z "$USER_FILENAME" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
 elif [ -z "$USER_FILENAME" ] && [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
     # Running non-interactive, so set to default
     USER_FILENAME="$GENERATED_FILENAME"
+fi
+
+# If user cleared out the default filename and continued, revert to back to default
+if [ -z "$USER_FILENAME" ]; then
+  USER_FILENAME="$GENERATED_FILENAME"
+  echo "${COLOR_YELLOW}NOTE: Saving as '$USER_FILENAME'${COLOR_RESET}"
 fi
 
 # USER_EXCLUDED_EXTENTIONS
