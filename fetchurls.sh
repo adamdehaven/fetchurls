@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="v3.4.0"
+VERSION="v3.5.0"
 
 # Set Defaults
 WGET_INSTALLED=0
@@ -14,8 +14,8 @@ USER_DOMAIN=
 USER_FILENAME=
 DEFAULT_SAVE_LOCATION=~/Desktop
 USER_SAVE_LOCATION=
-DEFAULT_EXCLUDED_EXTENTIONS="bmp|css|doc|docx|gif|jpeg|jpg|JPG|js|map|pdf|PDF|png|ppt|pptx|svg|ts|txt|xls|xlsx|xml"
-USER_EXCLUDED_EXTENTIONS=
+DEFAULT_EXCLUDED_EXTENSIONS="bmp|css|doc|docx|gif|jpeg|jpg|JPG|js|map|pdf|PDF|png|ppt|pptx|svg|ts|txt|xls|xlsx|xml"
+USER_EXCLUDED_EXTENSIONS=
 USER_SLEEP=
 USER_CRENDENTIAL_USERNAME=
 USER_CRENDENTIAL_PASSWORD=
@@ -104,8 +104,8 @@ while (( "$#" )); do
         # EXCLUDE FILE EXTENSIONS
         -e|--exclude)
             if [ "$2" ] || [ "$2" == "" ]; then
-                # Remove first and last character, if either is a pipe
-                USER_EXCLUDED_EXTENTIONS="$(echo "$2" | sed 's/^|//' | sed 's/|$//')"
+                # Remove first and last character, if either is a pipe or a space
+                USER_EXCLUDED_EXTENSIONS="$(echo "$2" | sed 's/^|//' | sed 's/|$//' | sed 's/^ //' | sed 's/ $//')"
                 shift # Remove argument name from processing
             else
                 echo "${COLOR_RED}ERROR: Value for $1 is required. Remove $1 flag to use the default value."${COLOR_RESET} >&2
@@ -113,8 +113,8 @@ while (( "$#" )); do
             fi
             ;;
         -e=*|--exclude=*)
-            # Remove first and last character, if either is a pipe
-            USER_EXCLUDED_EXTENTIONS="$(echo "${1#*=}" | sed 's/^|//' | sed 's/|$//')"
+            # Remove first and last character, if either is a pipe or a space
+            USER_EXCLUDED_EXTENSIONS="$(echo "${1#*=}" | sed 's/^|//' | sed 's/|$//' | sed 's/^ //' | sed 's/ $//')"
             ;;
         # USER_SLEEP
         -s|--sleep)
@@ -238,7 +238,7 @@ showHelp()
     echo "  -e, --exclude                 Pipe-delimited list of file extensions to exclude from results."
     echo "                                The list of file extensions must be passed inside quotes."
     echo "                                To prevent excluding files matching the default list, simply pass an empty string: \"\""
-    echo "                                Default: ${COLOR_YELLOW}\"$DEFAULT_EXCLUDED_EXTENTIONS\"${COLOR_RESET}"
+    echo "                                Default: ${COLOR_YELLOW}\"$DEFAULT_EXCLUDED_EXTENSIONS\"${COLOR_RESET}"
     echo "                                Example: ${COLOR_CYAN}\"css|js|map\"${COLOR_RESET}"
     echo ""
     echo "  -s, --sleep                   The number of seconds to wait between retrievals."
@@ -307,7 +307,7 @@ showTroubleshooting()
     echo "  USER_DOMAIN:                ${COLOR_CYAN}$USER_DOMAIN${COLOR_RESET}"
     echo "  USER_FILENAME:              ${COLOR_CYAN}$USER_FILENAME${COLOR_RESET}"
     echo "  USER_SAVE_LOCATION:         ${COLOR_CYAN}$USER_SAVE_LOCATION${COLOR_RESET}"
-    echo "  USER_EXCLUDED_EXTENTIONS:   ${COLOR_CYAN}$USER_EXCLUDED_EXTENTIONS${COLOR_RESET}"
+    echo "  USER_EXCLUDED_EXTENSIONS:   ${COLOR_CYAN}$USER_EXCLUDED_EXTENSIONS${COLOR_RESET}"
     echo "  USER_SLEEP:                 ${COLOR_CYAN}$USER_SLEEP${COLOR_RESET}"
     echo "  USER_CREDENTIALS_USERNAME:   ${COLOR_CYAN}$USER_CREDENTIALS_USERNAME${COLOR_RESET}"
     echo "  USER_CREDENTIALS_PASSWORD:   ${COLOR_CYAN}$USER_CREDENTIALS_PASSWORD${COLOR_RESET}"
@@ -342,10 +342,11 @@ displaySpinner()
 }
 
 fetchUrlsForDomain() {
-  cd $USER_SAVE_LOCATION && wget --spider -r -nd --max-redirect=30 $IGNORE_ROBOTS $USER_SLEEP $USER_CREDENTIALS $USER_DOMAIN 2>&1 \
+  cd $USER_SAVE_LOCATION && wget --spider --recursive --no-directories --max-redirect=30 --regex-type="posix" --reject-regex="\.(${USER_EXCLUDED_EXTENSIONS})(\?.*)?$" $IGNORE_ROBOTS $USER_SLEEP $USER_CREDENTIALS $USER_DOMAIN 2>&1 \
   | grep '^--' \
   | awk '{ print $3 }' \
-  | grep -E -v '\.('${USER_EXCLUDED_EXTENTIONS}')(\?.*)?$' \
+  | grep -E -v '\.('${USER_EXCLUDED_EXTENSIONS}')(\?.*)?$' \
+  | grep -E -v '\.(txt)(\?.*)?$' \
   | grep -E -v '\?(p|replytocom)=' \
   | grep -E -v '\/wp-content\/uploads\/' \
   | grep -E -v '\/feed\/' \
@@ -523,17 +524,17 @@ if [ -z "$USER_FILENAME" ]; then
   echo "${COLOR_YELLOW}NOTE: Saving as '$USER_FILENAME'${COLOR_RESET}"
 fi
 
-# USER_EXCLUDED_EXTENTIONS
-if [ -z "$USER_EXCLUDED_EXTENTIONS" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
+# USER_EXCLUDED_EXTENSIONS
+if [ -z "$USER_EXCLUDED_EXTENSIONS" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
     # Prompt user for excluded file extensions
     echo "${COLOR_RESET}"
     echo "Exclude files with matching extensions"
-    read -e -p "Excluded extensions: ${COLOR_CYAN}" -i "${DEFAULT_EXCLUDED_EXTENTIONS}" USER_EXCLUDED_EXTENTIONS
+    read -e -p "Excluded extensions: ${COLOR_CYAN}" -i "${DEFAULT_EXCLUDED_EXTENSIONS}" USER_EXCLUDED_EXTENSIONS
     # Remove first and last character, if either is a pipe
-    USER_EXCLUDED_EXTENTIONS="$(echo "$USER_EXCLUDED_EXTENTIONS" | sed 's/^|//' | sed 's/|$//')"
-elif [ -z "$USER_EXCLUDED_EXTENTIONS" ] && [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
+    USER_EXCLUDED_EXTENSIONS="$(echo "$USER_EXCLUDED_EXTENSIONS" | sed 's/^|//' | sed 's/|$//')"
+elif [ -z "$USER_EXCLUDED_EXTENSIONS" ] && [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
     # Running non-interactive, so set to default
-    USER_EXCLUDED_EXTENTIONS="$DEFAULT_EXCLUDED_EXTENTIONS"
+    USER_EXCLUDED_EXTENSIONS="$DEFAULT_EXCLUDED_EXTENSIONS"
 fi
 
 # If user passed troubleshoot flag, output variables before continuing
