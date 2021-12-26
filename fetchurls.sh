@@ -530,8 +530,8 @@ if [ -z "$USER_EXCLUDED_EXTENSIONS" ] && [ "$RUN_NONINTERACTIVE" -eq 0 ]; then
     echo "${COLOR_RESET}"
     echo "Exclude files with matching extensions"
     read -e -p "Excluded extensions: ${COLOR_CYAN}" -i "${DEFAULT_EXCLUDED_EXTENSIONS}" USER_EXCLUDED_EXTENSIONS
-    # Remove first and last character, if either is a pipe
-    USER_EXCLUDED_EXTENSIONS="$(echo "$USER_EXCLUDED_EXTENSIONS" | sed 's/^|//' | sed 's/|$//')"
+    # Remove first and last character, if either is a pipe or a space
+    USER_EXCLUDED_EXTENSIONS="$(echo "$USER_EXCLUDED_EXTENSIONS" | sed 's/^|//' | sed 's/|$//' | sed 's/^ //' | sed 's/ $//')"
 elif [ -z "$USER_EXCLUDED_EXTENSIONS" ] && [ "$RUN_NONINTERACTIVE" -eq 1 ]; then
     # Running non-interactive, so set to default
     USER_EXCLUDED_EXTENSIONS="$DEFAULT_EXCLUDED_EXTENSIONS"
