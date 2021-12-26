@@ -90,8 +90,6 @@ Pipe-delimited list of file extensions to exclude from results.
 
 To prevent excluding files matching the default list of file extensions, simply pass an empty string `""`
 
-**Note**: The list of file extensions must be passed inside quotes.
-
 ### sleep
 
 - Usage: `-s`, `--sleep`
